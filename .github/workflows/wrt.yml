@@ -1,4 +1,4 @@
-name: Create Release aarch64_generic_OFF
+name: Create Release_OFF
 #on: [push]
 on:
   push:
