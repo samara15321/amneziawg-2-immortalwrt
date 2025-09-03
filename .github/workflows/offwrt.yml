@@ -42,7 +42,7 @@ jobs:
           echo "pkgarch: ${{ matrix.build_env.pkgarch}}, target:${{ matrix.build_env.target}}, subtarget: ${{ matrix.build_env.subtarget}}"
 
           # Setup & install feeds
-          wget https://raw.githubusercontent.com/openwrt/openwrt/${{ matrix.build_env.tag }}/feeds.conf.default -O feeds.conf
+          wget https://raw.githubusercontent.com/openwrt/openwrt/v${{ matrix.build_env.tag }}/feeds.conf.default -O feeds.conf
           echo "src-git awgopenwrt https://github.com/samara1531/amneziawg_1.5.git" >> ./feeds.conf
           ./scripts/feeds update && ./scripts/feeds install -a
 
