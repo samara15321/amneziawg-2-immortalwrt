@@ -3,7 +3,7 @@ name: Create Release aarch64_generic_OFF
 on:
   push:
     tags:
-          - "wrt*.*.*"
+          - "owrt*.*.*"
 
 jobs:
   build:
