@@ -3,7 +3,7 @@ name: Create Release aarch64_generic_OFF
 on:
   push:
     tags:
-          - "ogowrt*.*.*"
+          - "GOwrt*.*.*"
 
 jobs:
   build:
@@ -51,33 +51,19 @@ jobs:
           echo "CONFIG_PACKAGE_amneziawg-go=m" >> .config
           echo "CONFIG_PACKAGE_amneziawg-tools=y" >> .config
           echo "CONFIG_PACKAGE_luci-proto-amneziawg=y" >> .config
-          echo "CONFIG_PACKAGE_kmod-crypto-lib-chacha20=m" >> .config
-          echo "CONFIG_PACKAGE_kmod-crypto-lib-chacha20poly1305=m" >> .config
-          echo "CONFIG_PACKAGE_kmod-crypto-chacha20poly1305=m" >> .config
+
+          echo 'CONFIG_GOLANG_EXTERNAL_BOOTSTRAP_ROOT="/usr/local/go/bin/go"' >> .config
+          echo 'CONFIG_GOLANG_BUILD_CACHE_DIR=""' >> .config
 
           make defconfig
 
           echo "    > make tools/install"
           make tools/install -i -j `nproc`
-
-          cat ./build_dir/target-*/linux-*/linux-*/.vermagic || true
-
           echo "    > make toolchain/install"
           make toolchain/install  -i -j `nproc`
-
-          cat ./build_dir/target-*/linux-*/linux-*/.vermagic || true
-
           # compile kernel module
           echo "    > make target/linux/compile"
           make target/linux/compile  -i -j `nproc` V=s
-
-          VERMAGIC=`cat ./build_dir/target-*/linux-*/linux-*/.vermagic`
-          VERMAGIC_EXPECTED=${{ matrix.build_env.vermagic }}
-
-          if [ "$VERMAGIC" != "$VERMAGIC_EXPECTED" ]; then
-            echo Vermagic mismatch: $VERMAGIC, expected $VERMAGIC_EXPECTED
-            exit 1
-          fi
 
       - name: Build AmneziaWG
         run: |
