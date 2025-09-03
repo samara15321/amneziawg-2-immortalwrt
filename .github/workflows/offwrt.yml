@@ -12,11 +12,11 @@ jobs:
     strategy:
       matrix:
         build_env:
-          - tag: "24.10.2"
+          - tag: "23.05.6"
             pkgarch: aarch64_generic
             target: rockchip
             subtarget: armv8
-            vermagic: "3d87fa32d9aace8c2ddc2c539721f4a1"
+            vermagic: "61c5c0147868589d49281c7d96fa0c02"
 
     steps:
       - uses: actions/checkout@v4
@@ -42,7 +42,7 @@ jobs:
           echo "pkgarch: ${{ matrix.build_env.pkgarch}}, target:${{ matrix.build_env.target}}, subtarget: ${{ matrix.build_env.subtarget}}"
 
           # Setup & install feeds
-          wget https://downloads.openwrt.org/releases/${{ matrix.build_env.tag }}/targets/${{ matrix.build_env.target}}/${{ matrix.build_env.subtarget}}/feeds.buildinfo -O feeds.conf
+          wget https://raw.githubusercontent.com/openwrt/openwrt/${{ matrix.build_env.tag }}/feeds.conf.default -O feeds.conf
           echo "src-git awgopenwrt https://github.com/samara1531/amneziawg_1.5.git" >> ./feeds.conf
           ./scripts/feeds update && ./scripts/feeds install -a
 
