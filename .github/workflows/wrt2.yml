@@ -54,8 +54,6 @@ jobs:
           echo "CONFIG_PACKAGE_amneziawg-go=y" >> .config
           echo "CONFIG_PACKAGE_amneziawg-tools=y" >> .config
           echo "CONFIG_PACKAGE_luci-proto-amneziawg=y" >> .config
-          echo 'CONFIG_GOLANG_EXTERNAL_BOOTSTRAP_ROOT="/opt/hostedtoolcache/go/1.24.4/x64/bin/go"' >> .config
-          echo 'CONFIG_GOLANG_BUILD_CACHE_DIR=""' >> .config
           echo 'CONFIG_GOLANG_GOTOOLCHAIN_EXTERNAL=y' >> .config
           make defconfig
 
@@ -76,7 +74,10 @@ jobs:
             exit 1
           fi
 
-          echo "Building AmneziaWG packages with Go 1.24.4"
+          export GO=$(which go)
+          export GOTOOLCHAIN=external
+          go version
+          echo "Using GO=$GO, GOTOOLCHAIN=$GOTOOLCHAIN"
 
           # Функции download и prepare с retry
           download_with_retry() {
@@ -112,7 +113,7 @@ jobs:
           prepare_with_retry amneziawg-tools
 
           # Compile все пакеты
-          make package/amneziawg-go/compile V=s GOTOOLCHAIN=external
+          make package/amneziawg-go/compile V=s
           make package/luci-proto-amneziawg/compile V=s
           make V=s package/amneziawg-tools/compile
 
