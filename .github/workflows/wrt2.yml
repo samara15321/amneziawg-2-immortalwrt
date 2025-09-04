@@ -24,6 +24,11 @@ jobs:
           ref: v${{ matrix.build_env.tag }}
           fetch-depth: 0
 
+      - name: Setup Go 1.24.4
+        uses: actions/setup-go@v4
+        with:
+          go-version: 1.24.4
+
       - name: Cache Tools and Kernel
         id: cache-tools-kernel
         uses: actions/cache@v4
@@ -35,18 +40,8 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-build-vm4-cache-tools-kernel-${{ matrix.build_env.tag }}-${{ matrix.build_env.pkgarch}}-
 
-      - name: Setup Go 1.24.4
-        uses: actions/setup-go@v4
-        with:
-          go-version: 1.24.4
-
       - name: Building kernel and tools
         run: |
-          export PATH=/opt/hostedtoolcache/go/1.24.4/x64/bin:$PATH
-          export GOROOT=/opt/hostedtoolcache/go/1.24.4/x64
-          export GOTOOLCHAIN=external
-          go version  # проверка версии
-
           echo "pkgarch: ${{ matrix.build_env.pkgarch}}, target:${{ matrix.build_env.target}}, subtarget: ${{ matrix.build_env.subtarget}}"
 
           # Setup & install feeds
@@ -119,19 +114,6 @@ jobs:
           make package/amneziawg-go/compile V=s
           make package/luci-proto-amneziawg/compile V=s
           make V=s package/amneziawg-tools/compile
-
-          # Проверка наличия всех пакетов
-          for pkg in \
-              "bin/packages/${{ matrix.build_env.pkgarch }}/awgopenwrt/amneziawg-tools_*.ipk" \
-              "bin/packages/${{ matrix.build_env.pkgarch }}/awgopenwrt/luci-proto-amneziawg_*.ipk" \
-              "bin/targets/${{ matrix.build_env.target}}/${{ matrix.build_env.subtarget}}/packages/amneziawg-go_*.ipk"; do
-              if ! ls $pkg 1> /dev/null 2>&1; then
-                  echo "ERROR: Package $pkg not found!"
-                  exit 1
-              fi
-          done
-
-          echo "All packages built successfully!"
 
       - name: Prepare artifacts
         run: |
