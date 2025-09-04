@@ -16,12 +16,12 @@ jobs:
             pkgarch: aarch64_generic
             target: rockchip
             subtarget: armv8
-            vermagic: "61c5c0147868589d49281c7d96fa0c02"
+            vermagic: "1165e14f95a921713988260b06d8b0ab"
 
     steps:
       - uses: actions/checkout@v4
         with:
-          repository: openwrt/openwrt
+          repository: immortalwrt/immortalwrt
           ref: v${{ matrix.build_env.tag }}
           fetch-depth: 0
 
@@ -42,12 +42,12 @@ jobs:
           echo "pkgarch: ${{ matrix.build_env.pkgarch}}, target:${{ matrix.build_env.target}}, subtarget: ${{ matrix.build_env.subtarget}}"
 
           # Setup & install feeds
-          wget https://raw.githubusercontent.com/openwrt/openwrt/v${{ matrix.build_env.tag }}/feeds.conf.default -O feeds.conf
-          echo "src-git awgopenwrt https://github.com/samara1531/amneziawg_1.5.git" >> ./feeds.conf
+          wget https://raw.githubusercontent.com/immortalwrt/immortalwrt/v${{ matrix.build_env.tag }}/feeds.conf.default -O feeds.conf
+          echo "src-git awgopenwrt https://github.com/samara15321/-amneziawg-1.5-immortalwrt-.git" >> ./feeds.conf
           ./scripts/feeds update && ./scripts/feeds install -a
 
           # Setup config with AWG and dependencies
-          wget https://downloads.openwrt.org/releases/${{ matrix.build_env.tag }}/targets/${{ matrix.build_env.target}}/${{ matrix.build_env.subtarget}}/config.buildinfo -O .config
+          wget https://downloads.immortalwrt.org/releases/${{ matrix.build_env.tag }}/targets/${{ matrix.build_env.target}}/${{ matrix.build_env.subtarget}}/config.buildinfo -O .config
           echo "CONFIG_PACKAGE_amneziawg-go=m" >> .config
           echo "CONFIG_PACKAGE_amneziawg-tools=y" >> .config
           echo "CONFIG_PACKAGE_luci-proto-amneziawg=y" >> .config
