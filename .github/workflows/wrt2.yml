@@ -35,6 +35,11 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-build-vm4-cache-tools-kernel-${{ matrix.build_env.tag }}-${{ matrix.build_env.pkgarch}}-
 
+      - name: Setup Go 1.24.4
+        uses: actions/setup-go@v4
+        with:
+          go-version: 1.24.4
+
       - name: Building kernel and tools
         run: |
           echo "pkgarch: ${{ matrix.build_env.pkgarch}}, target:${{ matrix.build_env.target}}, subtarget: ${{ matrix.build_env.subtarget}}"
@@ -49,11 +54,15 @@ jobs:
           echo "CONFIG_PACKAGE_amneziawg-go=y" >> .config
           echo "CONFIG_PACKAGE_amneziawg-tools=y" >> .config
           echo "CONFIG_PACKAGE_luci-proto-amneziawg=y" >> .config
-
           echo 'CONFIG_GOLANG_EXTERNAL_BOOTSTRAP_ROOT="/usr/local/go/bin/go"' >> .config
           echo 'CONFIG_GOLANG_BUILD_CACHE_DIR=""' >> .config
-
           make defconfig
+
+          # Использовать Go 1.24.4
+          export PATH=/opt/hostedtoolcache/go/1.24.4/x64/bin:$PATH
+          export GOROOT=/opt/hostedtoolcache/go/1.24.4/x64
+          export GOTOOLCHAIN=external
+          go version   # проверка версии
 
           echo "    > make tools/install"
           make tools/install -i -j `nproc`
@@ -62,14 +71,12 @@ jobs:
           echo "    > make target/linux/compile"
           make target/linux/compile -i -j `nproc` V=s
 
-      - name: Setup Go 1.24.4
-        uses: actions/setup-go@v4
-        with:
-          go-version: 1.24.4
-
       - name: Build AmneziaWG packages
-        run: |
+        run: |          
+          export PATH=/opt/hostedtoolcache/go/1.24.4/x64/bin:$PATH
+          export GOROOT=/opt/hostedtoolcache/go/1.24.4/x64
           export GOTOOLCHAIN=external
+          go version   # проверка версии
 
           VERMAGIC=$(cat ./build_dir/target-*/linux-*/linux-*/.vermagic)
           echo "Vermagic: $VERMAGIC"
