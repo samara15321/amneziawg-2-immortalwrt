@@ -73,6 +73,7 @@ jobs:
             echo "Vermagic mismatch: $VERMAGIC, expected $VERMAGIC_EXPECTED"
             exit 1
           fi
+
           export GO=$(which go)
           export GOTOOLCHAIN=external
           go version
