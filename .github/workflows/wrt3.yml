@@ -54,7 +54,6 @@ jobs:
           echo "CONFIG_PACKAGE_amneziawg-go=y" >> .config
           echo "CONFIG_PACKAGE_amneziawg-tools=y" >> .config
           echo "CONFIG_PACKAGE_luci-proto-amneziawg=y" >> .config
-          echo 'CONFIG_GOLANG_GOTOOLCHAIN_EXTERNAL=y' >> .config
           make defconfig
 
           echo "    > make tools/install"
@@ -75,12 +74,12 @@ jobs:
           fi
 
           export GO=$(which go)
-          export GOTOOLCHAIN=external
+          export PATH=$(dirname $GO):$PATH   # добавляем наверх PATH
+          echo "Using Go=$GO"
           go version
-          echo "Using GO=$GO, GOTOOLCHAIN=$GOTOOLCHAIN"
 
           # AmneziaWG core (Go)
-          make package/amneziawg-go/{clean,download,prepare,compile} V=s
+          make package/amneziawg-go/{clean,download,prepare,compile} V=s GO="$GO"
 
           # LuCI app
           make package/luci-app-amneziawg/{clean,download,prepare,compile} V=s
