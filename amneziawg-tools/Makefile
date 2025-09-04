@@ -5,8 +5,9 @@ PKG_VERSION:=1.0.20250903
 PKG_RELEASE:=$(AUTORELEASE)
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
-PKG_SOURCE_URL:=https://github.com/amnezia-vpn/amneziawg-tools/archive/refs/tags/v$(PKG_VERSION)
-PKG_MIRROR_HASH:=d729a6f54aafcd55b2cbb7324f09ca8f0d2536772970652bf822a271d0c907d7
+PKG_SOURCE_URL:=https://github.com/amnezia-vpn/amneziawg-tools/archive/refs/tags/v$(PKG_VERSION).tar.gz
+PKG_MIRROR_HASH:=skip
+PKG_HASH:=skip
 
 PKG_LICENSE:=GPL-2.0
 PKG_LICENSE_FILES:=COPYING
