@@ -3,7 +3,7 @@ name: Create Release_OFF
 on:
   push:
     tags:
-          - "wwrt*.*.*"
+          - "wrt*.*.*"
 
 jobs:
   build:
@@ -48,7 +48,7 @@ jobs:
 
           # Setup config with AWG and dependencies
           wget https://downloads.openwrt.org/releases/${{ matrix.build_env.tag }}/targets/${{ matrix.build_env.target}}/${{ matrix.build_env.subtarget}}/config.buildinfo -O .config
-          echo "CONFIG_PACKAGE_amneziawg-go=m" >> .config
+          echo "CONFIG_PACKAGE_amneziawg-go=y" >> .config
           echo "CONFIG_PACKAGE_amneziawg-tools=y" >> .config
           echo "CONFIG_PACKAGE_luci-proto-amneziawg=y" >> .config
 
@@ -77,14 +77,9 @@ jobs:
             exit 1
           fi
 
-          make package/amneziawg-go/{clean,download,prepare} V=s || true
-          make package/amneziawg-go/compile V=s || true
-
-          make package/luci-proto-amneziawg/{clean,download,prepare}
-          make package/luci-proto-amneziawg/compile V=s
-
-          make V=s package/amneziawg-tools/{clean,download,prepare}
-          make V=s package/amneziawg-tools/compile
+          make -j $(nproc) package/amneziawg-tools/{clean,download,prepare,compile}
+          make -j $(nproc) package/amneziawg-go/{clean,download,prepare,compile}
+          make -j $(nproc) package/luci-proto-amneziawg/{clean,download,prepare,compile}
 
       - name: Prepare artifacts
         run: |
@@ -93,7 +88,7 @@ jobs:
           postfix="${tag_name}_v${{ matrix.build_env.tag }}_${{ matrix.build_env.pkgarch}}_${{ matrix.build_env.target}}_${{ matrix.build_env.subtarget}}"
           cp bin/packages/${{ matrix.build_env.pkgarch }}/awgopenwrt/amneziawg-tools_*.ipk awgrelease/amneziawg-tools_${postfix}.ipk
           cp bin/packages/${{ matrix.build_env.pkgarch }}/awgopenwrt/luci-proto-amneziawg_*.ipk awgrelease/luci-proto-amneziawg_${postfix}.ipk
-          cp bin/targets/${{ matrix.build_env.target}}/${{ matrix.build_env.subtarget}}/packages/amneziawg-go_*.ipk awgrelease/amneziawg-go_${postfix}.ipk
+          cp bin/packages/${{ matrix.build_env.pkgarch }}/awgopenwrt/amneziawg-go_*.ipk awgrelease/amneziawg-go_${postfix}.ipk
 
       - name: Release
         uses: softprops/action-gh-release@v1
