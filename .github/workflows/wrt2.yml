@@ -1,9 +1,8 @@
-name: Create_OFF
-#on: [push]
+name: Create Release_OFF
 on:
   push:
     tags:
-          - "gowrt*.*.*"
+      - "gowrt*.*.*"
 
 jobs:
   build:
@@ -37,7 +36,6 @@ jobs:
             ${{ runner.os }}-build-vm4-cache-tools-kernel-${{ matrix.build_env.tag }}-${{ matrix.build_env.pkgarch}}-
 
       - name: Building kernel and tools
-        #if: ${{ steps.cache-tools-kernel.outputs.cache-hit != 'true' }}
         run: |
           echo "pkgarch: ${{ matrix.build_env.pkgarch}}, target:${{ matrix.build_env.target}}, subtarget: ${{ matrix.build_env.subtarget}}"
 
@@ -48,87 +46,95 @@ jobs:
 
           # Setup config with AWG and dependencies
           wget https://downloads.immortalwrt.org/releases/${{ matrix.build_env.tag }}/targets/${{ matrix.build_env.target}}/${{ matrix.build_env.subtarget}}/config.buildinfo -O .config
-          echo "CONFIG_PACKAGE_amneziawg-go=m" >> .config
+          echo "CONFIG_PACKAGE_amneziawg-go=y" >> .config
           echo "CONFIG_PACKAGE_amneziawg-tools=y" >> .config
           echo "CONFIG_PACKAGE_luci-proto-amneziawg=y" >> .config
+
+          echo 'CONFIG_GOLANG_EXTERNAL_BOOTSTRAP_ROOT="/usr/local/go/bin/go"' >> .config
+          echo 'CONFIG_GOLANG_BUILD_CACHE_DIR=""' >> .config
 
           make defconfig
 
           echo "    > make tools/install"
           make tools/install -i -j `nproc`
           echo "    > make toolchain/install"
-          make toolchain/install  -i -j `nproc`
-          # compile kernel module
+          make toolchain/install -i -j `nproc`
           echo "    > make target/linux/compile"
-          make target/linux/compile  -i -j `nproc` V=s
+          make target/linux/compile -i -j `nproc` V=s
 
-      - name: Build AmneziaWG
+      - name: Setup Go 1.24.4
+        uses: actions/setup-go@v4
+        with:
+          go-version: 1.24.4
+
+      - name: Build AmneziaWG packages
         run: |
-            VERMAGIC=`cat ./build_dir/target-*/linux-*/linux-*/.vermagic`
-            echo "Vermagic: $VERMAGIC"
-            VERMAGIC_EXPECTED=${{ matrix.build_env.vermagic }}
-            if [ "$VERMAGIC" != "$VERMAGIC_EXPECTED" ]; then
-              echo "Vermagic mismatch: $VERMAGIC, expected $VERMAGIC_EXPECTED"
-              exit 1
-            fi
+          export GOTOOLCHAIN=external
 
-            echo "Building AmneziaWG safely"
+          VERMAGIC=$(cat ./build_dir/target-*/linux-*/linux-*/.vermagic)
+          echo "Vermagic: $VERMAGIC"
+          VERMAGIC_EXPECTED=${{ matrix.build_env.vermagic }}
+          if [ "$VERMAGIC" != "$VERMAGIC_EXPECTED" ]; then
+            echo "Vermagic mismatch: $VERMAGIC, expected $VERMAGIC_EXPECTED"
+            exit 1
+          fi
 
-            # Функция для скачивания с повторной попыткой
-            download_with_retry() {
-                local pkg=$1
-                echo "Downloading $pkg..."
-                if ! make package/$pkg/download V=s; then
-                    echo "WARNING: $pkg download failed, retrying..."
-                    make package/$pkg/download V=s || { echo "ERROR: $pkg download failed permanently!"; exit 1; }
-                fi
-            }
+          echo "Building AmneziaWG packages with Go 1.24.4"
 
-            # Функция для prepare с повторной попыткой
-            prepare_with_retry() {
-                local pkg=$1
-                echo "Preparing $pkg..."
-                if ! make package/$pkg/prepare V=s; then
-                    echo "WARNING: $pkg prepare failed, retrying..."
-                    make package/$pkg/prepare V=s || { echo "ERROR: $pkg prepare failed permanently!"; exit 1; }
-                fi
-            }
+          # Функции download и prepare с retry
+          download_with_retry() {
+              local pkg=$1
+              echo "Downloading $pkg..."
+              if ! make package/$pkg/download V=s; then
+                  echo "WARNING: $pkg download failed, retrying..."
+                  make package/$pkg/download V=s || { echo "ERROR: $pkg download failed permanently!"; exit 1; }
+              fi
+          }
 
-            # Clean все пакеты
-            make package/amneziawg-go/clean V=s
-            make package/luci-proto-amneziawg/clean V=s
-            make V=s package/amneziawg-tools/clean
+          prepare_with_retry() {
+              local pkg=$1
+              echo "Preparing $pkg..."
+              if ! make package/$pkg/prepare V=s; then
+                  echo "WARNING: $pkg prepare failed, retrying..."
+                  make package/$pkg/prepare V=s || { echo "ERROR: $pkg prepare failed permanently!"; exit 1; }
+              fi
+          }
 
-            # Download и Prepare с retry
-            download_with_retry amneziawg-go
-            download_with_retry luci-proto-amneziawg
-            download_with_retry amneziawg-tools
+          # Clean все пакеты
+          make package/amneziawg-go/clean V=s
+          make package/luci-proto-amneziawg/clean V=s
+          make V=s package/amneziawg-tools/clean
 
-            prepare_with_retry amneziawg-go
-            prepare_with_retry luci-proto-amneziawg
-            prepare_with_retry amneziawg-tools
+          # Download и Prepare с retry
+          download_with_retry amneziawg-go
+          download_with_retry luci-proto-amneziawg
+          download_with_retry amneziawg-tools
 
-            # Compile
-            make package/amneziawg-go/compile V=s
-            make package/luci-proto-amneziawg/compile V=s
-            make V=s package/amneziawg-tools/compile
+          prepare_with_retry amneziawg-go
+          prepare_with_retry luci-proto-amneziawg
+          prepare_with_retry amneziawg-tools
 
-            # Проверка, что все пакеты создались
-            for pkg in \
-                "bin/packages/${{ matrix.build_env.pkgarch }}/awgopenwrt/amneziawg-tools_*.ipk" \
-                "bin/packages/${{ matrix.build_env.pkgarch }}/awgopenwrt/luci-proto-amneziawg_*.ipk" \
-                "bin/targets/${{ matrix.build_env.target}}/${{ matrix.build_env.subtarget}}/packages/amneziawg-go_*.ipk"; do
-                if ! ls $pkg 1> /dev/null 2>&1; then
-                    echo "ERROR: Package $pkg not found!"
-                    exit 1
-                fi
-            done
+          # Compile все пакеты
+          make package/amneziawg-go/compile V=s
+          make package/luci-proto-amneziawg/compile V=s
+          make V=s package/amneziawg-tools/compile
 
-            echo "All packages built successfully!"
+          # Проверка наличия всех пакетов
+          for pkg in \
+              "bin/packages/${{ matrix.build_env.pkgarch }}/awgopenwrt/amneziawg-tools_*.ipk" \
+              "bin/packages/${{ matrix.build_env.pkgarch }}/awgopenwrt/luci-proto-amneziawg_*.ipk" \
+              "bin/targets/${{ matrix.build_env.target}}/${{ matrix.build_env.subtarget}}/packages/amneziawg-go_*.ipk"; do
+              if ! ls $pkg 1> /dev/null 2>&1; then
+                  echo "ERROR: Package $pkg not found!"
+                  exit 1
+              fi
+          done
+
+          echo "All packages built successfully!"
 
       - name: Prepare artifacts
         run: |
-          tag_name=${{  github.ref_name }}
+          tag_name=${{ github.ref_name }}
           mkdir -p awgrelease
           postfix="${tag_name}_v${{ matrix.build_env.tag }}_${{ matrix.build_env.pkgarch}}_${{ matrix.build_env.target}}_${{ matrix.build_env.subtarget}}"
           cp bin/packages/${{ matrix.build_env.pkgarch }}/awgopenwrt/amneziawg-tools_*.ipk awgrelease/amneziawg-tools_${postfix}.ipk
