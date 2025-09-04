@@ -2,7 +2,7 @@ name: Create Release_OFF
 on:
   push:
     tags:
-      - "gowrt*.*.*"
+      - "gwrt*.*.*"
 
 jobs:
   build:
