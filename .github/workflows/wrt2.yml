@@ -54,7 +54,8 @@ jobs:
           echo "CONFIG_PACKAGE_amneziawg-go=y" >> .config
           echo "CONFIG_PACKAGE_amneziawg-tools=y" >> .config
           echo "CONFIG_PACKAGE_luci-proto-amneziawg=y" >> .config
-          echo 'CONFIG_GOLANG_EXTERNAL_BOOTSTRAP_ROOT="/opt/hostedtoolcache/go/1.24.4/x64/bin/go"' >> .config
+          echo 'CONFIG_GOLANG_GOTOOLCHAIN_EXTERNAL=y' >> .config
+          echo 'CONFIG_GOLANG_EXTERNAL_BOOTSTRAP_ROOT="/opt/hostedtoolcache/go/1.24.4/x64"' >> .config
           echo 'CONFIG_GOLANG_BUILD_CACHE_DIR=""' >> .config
           make defconfig
 
