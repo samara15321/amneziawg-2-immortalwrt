@@ -11,11 +11,11 @@ jobs:
     strategy:
       matrix:
         build_env:
-          - tag: "24.10.2"
+          - tag: "23.05.6"
             pkgarch: aarch64_generic
             target: rockchip
             subtarget: armv8
-            vermagic: "9e686cc1e0d5129337ca1ca28c2ab984"
+            vermagic: "1165e14f95a921713988260b06d8b0ab"
 
     steps:
       - uses: actions/checkout@v4
@@ -112,7 +112,7 @@ jobs:
           prepare_with_retry amneziawg-tools
 
           # Compile все пакеты
-          make package/amneziawg-go/compile V=s
+          make package/amneziawg-go/compile V=s GOTOOLCHAIN=external
           make package/luci-proto-amneziawg/compile V=s
           make V=s package/amneziawg-tools/compile
 
