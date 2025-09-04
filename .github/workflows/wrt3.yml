@@ -32,7 +32,8 @@ jobs:
       - name: Install build dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y wget curl git build-essential unzip xz-utils sha256sum
+          sudo apt-get install -y wget curl git build-essential unzip xz-utils
+
 
       - name: Cache Tools and Kernel
         id: cache-tools-kernel
