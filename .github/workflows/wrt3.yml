@@ -73,49 +73,19 @@ jobs:
             echo "Vermagic mismatch: $VERMAGIC, expected $VERMAGIC_EXPECTED"
             exit 1
           fi
-
           export GO=$(which go)
           export GOTOOLCHAIN=external
           go version
           echo "Using GO=$GO, GOTOOLCHAIN=$GOTOOLCHAIN"
 
-          # Функции download и prepare с retry
-          download_with_retry() {
-              local pkg=$1
-              echo "Downloading $pkg..."
-              if ! make package/$pkg/download V=s; then
-                  echo "WARNING: $pkg download failed, retrying..."
-                  make package/$pkg/download V=s || { echo "ERROR: $pkg download failed permanently!"; exit 1; }
-              fi
-          }
+          # AmneziaWG core (Go)
+          make package/amneziawg-go/{clean,download,prepare,compile} V=s
 
-          prepare_with_retry() {
-              local pkg=$1
-              echo "Preparing $pkg..."
-              if ! make package/$pkg/prepare V=s; then
-                  echo "WARNING: $pkg prepare failed, retrying..."
-                  make package/$pkg/prepare V=s || { echo "ERROR: $pkg prepare failed permanently!"; exit 1; }
-              fi
-          }
+          # LuCI app
+          make package/luci-app-amneziawg/{clean,download,prepare,compile} V=s
 
-          # Clean все пакеты
-          make package/amneziawg-go/clean V=s
-          make package/luci-proto-amneziawg/clean V=s
-          make V=s package/amneziawg-tools/clean
-
-          # Download и Prepare с retry
-          download_with_retry amneziawg-go
-          download_with_retry luci-proto-amneziawg
-          download_with_retry amneziawg-tools
-
-          prepare_with_retry amneziawg-go
-          prepare_with_retry luci-proto-amneziawg
-          prepare_with_retry amneziawg-tools
-
-          # Compile все пакеты
-          make package/amneziawg-go/compile V=s
-          make package/luci-proto-amneziawg/compile V=s
-          make V=s package/amneziawg-tools/compile
+          # Tools
+          make package/amneziawg-tools/{clean,download,prepare,compile} V=s
 
       - name: Prepare artifacts
         run: |
