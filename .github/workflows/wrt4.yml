@@ -29,6 +29,11 @@ jobs:
         with:
           go-version: '>=1.24.4'
 
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y wget curl git build-essential unzip xz-utils sha256sum
+
       - name: Cache Tools and Kernel
         id: cache-tools-kernel
         uses: actions/cache@v4
