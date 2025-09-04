@@ -24,11 +24,6 @@ jobs:
           ref: v${{ matrix.build_env.tag }}
           fetch-depth: 0
 
-      - name: Setup Go 1.24.4
-        uses: actions/setup-go@v4
-        with:
-          go-version: 1.24.4
-
       - name: Cache Tools and Kernel
         id: cache-tools-kernel
         uses: actions/cache@v4
@@ -54,7 +49,6 @@ jobs:
           echo "CONFIG_PACKAGE_amneziawg-go=y" >> .config
           echo "CONFIG_PACKAGE_amneziawg-tools=y" >> .config
           echo "CONFIG_PACKAGE_luci-proto-amneziawg=y" >> .config
-          echo 'CONFIG_GOLANG_GOTOOLCHAIN_EXTERNAL=y' >> .config
           make defconfig
 
           echo "    > make tools/install"
@@ -73,11 +67,6 @@ jobs:
             echo "Vermagic mismatch: $VERMAGIC, expected $VERMAGIC_EXPECTED"
             exit 1
           fi
-
-          export GO=$(which go)
-          export GOTOOLCHAIN=external
-          go version
-          echo "Using GO=$GO, GOTOOLCHAIN=$GOTOOLCHAIN"
 
           # Функции download и prepare с retry
           download_with_retry() {
