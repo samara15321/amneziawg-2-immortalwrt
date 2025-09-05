@@ -45,7 +45,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-build-vm4-cache-tools-kernel-${{ matrix.build_env.tag }}-${{ matrix.build_env.pkgarch}}-
 
-      - name: Building kernel and tools
+      - name: Building 
         run: |
           echo "pkgarch: ${{ matrix.build_env.pkgarch}}, target:${{ matrix.build_env.target}}, subtarget: ${{ matrix.build_env.subtarget}}"
 
@@ -60,7 +60,7 @@ jobs:
           echo "CONFIG_PACKAGE_amneziawg-tools=y" >> .config
           echo "CONFIG_PACKAGE_luci-proto-amneziawg=y" >> .config
 
-      - name: Force external Go
+      - name: Force external Go & Building kernel and tools
         run: |
           # Убираем встроенный golang из feeds
           rm -rf feeds/packages/lang/golang
