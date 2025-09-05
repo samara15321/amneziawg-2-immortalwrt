@@ -62,12 +62,12 @@ jobs:
 
       - name: Force external Go & Building kernel and tools
         run: |
-          # Убираем встроенный golang из feeds
-          rm -rf feeds/packages/lang/golang
 
-          # Включаем внешний Go
+          # Включаем внешний Go в конфиге
           echo 'CONFIG_GOLANG_EXTERNAL_TOOLCHAIN=y' >> .config
           echo 'CONFIG_GOLANG_EXTERNAL_PATH="/opt/hostedtoolcache/go/1.24.6/x64/bin/go"' >> .config
+
+          # Отключаем пакеты golang из сборки, чтобы не ставить встроенный
           echo 'CONFIG_PACKAGE_golang=' >> .config
           echo 'CONFIG_PACKAGE_golang-src=' >> .config
           echo 'CONFIG_PACKAGE_golang-tools=' >> .config
