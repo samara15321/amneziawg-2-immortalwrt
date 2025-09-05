@@ -4,7 +4,7 @@ include $(TOPDIR)/rules.mk
 
 
 PKG_NAME:=amneziawg-go
-PKG_VERSION:=0.2.15
+PKG_VERSION:=0.2.14-beta-awg-1.5-1
 PKG_RELEASE:=$(AUTORELEASE)
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
