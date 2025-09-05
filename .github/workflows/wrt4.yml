@@ -27,7 +27,7 @@ jobs:
       - name: Install Go
         uses: actions/setup-go@v5
         with:
-          go-version: '>=1.24.4'
+          go-version: '1.24.6'
 
       - name: Install build dependencies
         run: |
@@ -59,6 +59,8 @@ jobs:
           echo "CONFIG_PACKAGE_amneziawg-go=y" >> .config
           echo "CONFIG_PACKAGE_amneziawg-tools=y" >> .config
           echo "CONFIG_PACKAGE_luci-proto-amneziawg=y" >> .config
+          echo 'CONFIG_GOLANG_EXTERNAL_TOOLCHAIN=y' >> .config
+          echo 'CONFIG_GOLANG_EXTERNAL_PATH="/opt/hostedtoolcache/go/1.24.6/x64/bin/go"' >> .config
           make defconfig
 
           echo "    > make tools/install"
@@ -78,19 +80,25 @@ jobs:
             exit 1
           fi
 
-          export GO=$(which go)
-          export PATH=$(dirname $GO):$PATH   # добавляем наверх PATH
-          echo "Using Go=$GO"
-          go version
+          # Настройка на внешний Go
+          echo 'CONFIG_GOLANG_EXTERNAL_TOOLCHAIN=y' >> .config
+          echo 'CONFIG_GOLANG_EXTERNAL_PATH="/opt/hostedtoolcache/go/1.24.6/x64/bin/go"' >> .config
+          make defconfig
 
           # AmneziaWG core (Go)
-          make package/amneziawg-go/{clean,download,prepare,compile} V=s GO="$GO"
+          make package/amneziawg-go/download V=s
+          make package/amneziawg-go/prepare V=s
+          make package/amneziawg-go/compile V=s
 
           # LuCI app
-          make package/luci-app-amneziawg/{clean,download,prepare,compile} V=s
+          make package/luci-app-amneziawg/download V=s
+          make package/luci-app-amneziawg/prepare V=s
+          make package/luci-app-amneziawg/compile V=s
 
           # Tools
-          make package/amneziawg-tools/{clean,download,prepare,compile} V=s
+          make package/amneziawg-tools/download V=s
+          make package/amneziawg-tools/prepare V=s
+          make package/amneziawg-tools/compile V=s
 
       - name: Prepare artifacts
         run: |
