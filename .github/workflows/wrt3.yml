@@ -60,20 +60,6 @@ jobs:
           echo "CONFIG_PACKAGE_amneziawg-tools=y" >> .config
           echo "CONFIG_PACKAGE_luci-proto-amneziawg=y" >> .config
 
-      - name: Force external Go & Building kernel and tools
-        run: |
-
-          # Очистка старых артефактов встроенного Go
-          rm -rf staging_dir/toolchain-*/host-golang*
-          rm -rf build_dir/target-*/golang-*
-
-          # Включаем внешний Go в конфиг
-          echo 'CONFIG_GOLANG_EXTERNAL_TOOLCHAIN=y' >> .config
-          echo 'CONFIG_GOLANG_EXTERNAL_PATH="/opt/hostedtoolcache/go/1.24.6/x64/bin/go"' >> .config
-          echo 'CONFIG_PACKAGE_golang=' >> .config
-          echo 'CONFIG_PACKAGE_golang-src=' >> .config
-          echo 'CONFIG_PACKAGE_golang-tools=' >> .config
-
           make defconfig
 
           echo "    > make tools/install"
@@ -92,6 +78,21 @@ jobs:
             echo "Vermagic mismatch: $VERMAGIC, expected $VERMAGIC_EXPECTED"
             exit 1
           fi
+
+           echo "Using external Go for AWG build"
+
+           # Добавляем системный Go в PATH
+           export PATH="/opt/hostedtoolcache/go/1.24.6/x64/bin:$PATH"
+           export GOROOT="/opt/hostedtoolcache/go/1.24.6/x64"
+           export GOPATH="$(pwd)/.go_work"
+
+           mkdir -p $GOPATH/src
+
+          # Сборка amneziawg-go
+          pushd package/feeds/awgopenwrt/amneziawg-go
+          make clean
+          make compile GO="$GOROOT/bin/go" -j$(nproc)
+          popd
 
           # AmneziaWG core (Go)
           make package/amneziawg-go/download V=s
