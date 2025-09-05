@@ -10,30 +10,19 @@ PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=https://github.com/amnezia-vpn/$(PKG_NAME)/archive/refs/tags/v$(PKG_VERSION)/
 PKG_HASH:=skip
 
-PKG_BUILD_DEPENDS:=golang/host
 PKG_BUILD_PARALLEL:=1
 PKG_BUILD_FLAGS:=no-mips16
 
-GO_PKG:=github.com/amnezia-vpn/amneziawg-go
-GO_PKG_LDFLAGS_X:=\
-	main.Build=$(PKG_VERSION)
-
-# 🔥 Добавляем прямую ссылку на внешний Go
+# 🔥 Внешний Go
 GO := /opt/hostedtoolcache/go/1.24.6/x64/bin/go
 
 include $(INCLUDE_DIR)/package.mk
-include ../../packages/lang/golang/golang-package.mk
 
 define Package/amneziawg-go
   SECTION:=net
   CATEGORY:=Network
   TITLE:=AmneziaWG userspace implementation program (written in Go)
-  DEPENDS:=$(GO_ARCH_DEPENDS) +kmod-tun
-endef
-
-# 🔥 Переопределяем компиляцию
-define Build/Compile
-	GO="$(GO)" $(call GoPackage/Build/Compile)
+  DEPENDS:=+kmod-tun
 endef
 
 define Package/amneziawg-go/description
@@ -43,10 +32,17 @@ define Package/amneziawg-go/description
   high performance of the original.
 endef
 
+# 🔥 Чистая компиляция без golang-package.mk
+define Build/Compile
+	cd $(PKG_BUILD_DIR) && \
+		$(GO) build -v -trimpath \
+		-ldflags "-X main.Build=$(PKG_VERSION)" \
+		-o $(PKG_BUILD_DIR)/amneziawg-go ./cmd/...
+endef
+
 define Package/amneziawg-go/install
-	$(call GoPackage/Package/Install/Bin,$(PKG_INSTALL_DIR))
 	$(INSTALL_DIR) $(1)/usr/bin
-	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/bin/amneziawg-go $(1)/usr/bin/amneziawg-go
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/amneziawg-go $(1)/usr/bin/amneziawg-go
 endef
 
 $(eval $(call BuildPackage,amneziawg-go))
