@@ -59,8 +59,19 @@ jobs:
           echo "CONFIG_PACKAGE_amneziawg-go=y" >> .config
           echo "CONFIG_PACKAGE_amneziawg-tools=y" >> .config
           echo "CONFIG_PACKAGE_luci-proto-amneziawg=y" >> .config
+
+      - name: Force external Go
+        run: |
+          # Убираем встроенный golang из feeds
+          rm -rf feeds/packages/lang/golang
+
+          # Включаем внешний Go
           echo 'CONFIG_GOLANG_EXTERNAL_TOOLCHAIN=y' >> .config
           echo 'CONFIG_GOLANG_EXTERNAL_PATH="/opt/hostedtoolcache/go/1.24.6/x64/bin/go"' >> .config
+          echo 'CONFIG_PACKAGE_golang=' >> .config
+          echo 'CONFIG_PACKAGE_golang-src=' >> .config
+          echo 'CONFIG_PACKAGE_golang-tools=' >> .config
+
           make defconfig
 
           echo "    > make tools/install"
@@ -79,11 +90,6 @@ jobs:
             echo "Vermagic mismatch: $VERMAGIC, expected $VERMAGIC_EXPECTED"
             exit 1
           fi
-
-          # Настройка на внешний Go
-          echo 'CONFIG_GOLANG_EXTERNAL_TOOLCHAIN=y' >> .config
-          echo 'CONFIG_GOLANG_EXTERNAL_PATH="/opt/hostedtoolcache/go/1.24.6/x64/bin/go"' >> .config
-          make defconfig
 
           # AmneziaWG core (Go)
           make package/amneziawg-go/download V=s
