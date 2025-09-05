@@ -79,10 +79,6 @@ jobs:
             exit 1
           fi
 
-          echo "Using external Go only for AWG build"
-          export PATH="/opt/hostedtoolcache/go/1.24.6/x64/bin:$PATH"
-          export GOROOT="/opt/hostedtoolcache/go/1.24.6/x64"
-
           # AmneziaWG core (Go)
           make package/amneziawg-go/download V=s
           make package/amneziawg-go/prepare V=s
