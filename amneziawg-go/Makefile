@@ -1,5 +1,3 @@
-# This is free software, licensed under the MIT License.
-
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=amneziawg-go
@@ -13,7 +11,7 @@ PKG_HASH:=skip
 PKG_BUILD_PARALLEL:=1
 PKG_BUILD_FLAGS:=no-mips16
 
-# 🔥 Внешний Go
+# Принудительно используем внешнее Go
 GO := /opt/hostedtoolcache/go/1.24.6/x64/bin/go
 
 include $(INCLUDE_DIR)/package.mk
@@ -32,12 +30,11 @@ define Package/amneziawg-go/description
   high performance of the original.
 endef
 
-# 🔥 Чистая компиляция без golang-package.mk
 define Build/Compile
 	cd $(PKG_BUILD_DIR) && \
 		$(GO) build -v -trimpath \
 		-ldflags "-X main.Build=$(PKG_VERSION)" \
-		-o $(PKG_BUILD_DIR)/amneziawg-go ./cmd/...
+		-o $(PKG_BUILD_DIR)/amneziawg-go .
 endef
 
 define Package/amneziawg-go/install
