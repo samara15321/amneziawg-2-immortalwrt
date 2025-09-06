@@ -39,7 +39,7 @@ define Build/Compile
 		CC="$(TARGET_CC)" \
 		$(GO) build -v -trimpath \
 		-ldflags "-X main.Build=$(PKG_VERSION)" \
-		-o $(PKG_BUILD_DIR)/amneziawg-go ./cmd/amneziawg-go
+		-o $(PKG_BUILD_DIR)/amneziawg-go .
 endef
 
 define Package/amneziawg-go/install
