@@ -12,10 +12,10 @@ jobs:
       matrix:
         build_env:
           - tag: "24.10.2"
-            pkgarch: aarch64_generic
-            target: rockchip
-            subtarget: armv8
-            vermagic: "9e686cc1e0d5129337ca1ca28c2ab984"
+            pkgarch: aarch64_cortex-a53
+            target: mediatek
+            subtarget: mt7622
+            vermagic: "397df5de3803b3248c61c491d79c5ad8"
 
     steps:
       - uses: actions/checkout@v4
@@ -59,6 +59,10 @@ jobs:
           echo "CONFIG_PACKAGE_amneziawg-go=y" >> .config
           echo "CONFIG_PACKAGE_amneziawg-tools=y" >> .config
           echo "CONFIG_PACKAGE_luci-proto-amneziawg=y" >> .config
+          echo "CONFIG_PACKAGE_kmod-amneziawg=m" >> .config
+          echo "CONFIG_PACKAGE_kmod-crypto-lib-chacha20=m" >> .config
+          echo "CONFIG_PACKAGE_kmod-crypto-lib-chacha20poly1305=m" >> .config
+          echo "CONFIG_PACKAGE_kmod-crypto-chacha20poly1305=m" >> .config
 
           make defconfig
 
@@ -84,6 +88,11 @@ jobs:
           make package/amneziawg-go/prepare V=s
           make package/amneziawg-go/compile V=s
 
+          # kmod-amneziawg
+          make package/kmod-amneziawg/download V=s
+          make package/kmod-amneziawg/prepare V=s
+          make package/kmod-amneziawg/compile V=s
+
           # Tools
           make package/amneziawg-tools/download V=s
           make package/amneziawg-tools/prepare V=s
@@ -102,6 +111,7 @@ jobs:
           cp bin/packages/${{ matrix.build_env.pkgarch }}/awgopenwrt/amneziawg-tools_*.ipk awgrelease/amneziawg-tools_${postfix}.ipk
           cp bin/packages/${{ matrix.build_env.pkgarch }}/awgopenwrt/luci-proto-amneziawg_*.ipk awgrelease/luci-proto-amneziawg_${postfix}.ipk
           cp bin/packages/${{ matrix.build_env.pkgarch }}/awgopenwrt/amneziawg-go_*.ipk awgrelease/amneziawg-go_${postfix}.ipk
+          cp bin/targets/${{ matrix.build_env.target}}/${{ matrix.build_env.subtarget}}/packages/kmod-amneziawg_*.ipk awgrelease/kmod-amneziawg_${postfix}.ipk
 
       - name: Release
         uses: softprops/action-gh-release@v1
