@@ -11,7 +11,7 @@ PKG_HASH:=skip
 PKG_BUILD_PARALLEL:=1
 PKG_BUILD_FLAGS:=no-mips16
 
-# Принудительно используем внешнее Go
+# Используем внешнее Go
 GO := /opt/hostedtoolcache/go/1.24.6/x64/bin/go
 
 include $(INCLUDE_DIR)/package.mk
@@ -34,7 +34,7 @@ define Build/Compile
 	cd $(PKG_BUILD_DIR) && \
 		GOOS=linux \
 		GOARCH=$(GO_ARCH) \
-		GOARM=$(GO_ARM) \
+		$(if $(GO_ARM),GOARM=$(GO_ARM)) \
 		CGO_ENABLED=1 \
 		CC="$(TARGET_CC)" \
 		$(GO) build -v -trimpath \
