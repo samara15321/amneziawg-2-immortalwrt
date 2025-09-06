@@ -10,8 +10,6 @@ PKG_VERSION:=1.0.20250813
 LUCI_DEPENDS:=+amneziawg-tools +ucode +luci-lib-uqr +resolveip
 LUCI_PKGARCH:=all
 
-PKG_PROVIDES:=luci-app-amneziawg
-
 include $(TOPDIR)/feeds/luci/luci.mk
 
 # call BuildPackage - OpenWrt buildroot signature
