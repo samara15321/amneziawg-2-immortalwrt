@@ -84,15 +84,15 @@ jobs:
           make package/amneziawg-go/prepare V=s
           make package/amneziawg-go/compile V=s
 
-          # LuCI app
-          make package/luci-app-amneziawg/download V=s
-          make package/luci-app-amneziawg/prepare V=s
-          make package/luci-app-amneziawg/compile V=s
-
           # Tools
           make package/amneziawg-tools/download V=s
           make package/amneziawg-tools/prepare V=s
           make package/amneziawg-tools/compile V=s
+
+          # LuCI app
+          make package/luci-proto-amneziawg/download V=s
+          make package/luci-proto-amneziawg/prepare V=s
+          make package/luci-proto-amneziawg/compile V=s
 
       - name: Prepare artifacts
         run: |
@@ -101,7 +101,7 @@ jobs:
           postfix="${tag_name}_v${{ matrix.build_env.tag }}_${{ matrix.build_env.pkgarch}}_${{ matrix.build_env.target}}_${{ matrix.build_env.subtarget}}"
           cp bin/packages/${{ matrix.build_env.pkgarch }}/awgopenwrt/amneziawg-tools_*.ipk awgrelease/amneziawg-tools_${postfix}.ipk
           cp bin/packages/${{ matrix.build_env.pkgarch }}/awgopenwrt/luci-proto-amneziawg_*.ipk awgrelease/luci-proto-amneziawg_${postfix}.ipk
-          cp bin/targets/${{ matrix.build_env.target}}/${{ matrix.build_env.subtarget}}/packages/amneziawg-go_*.ipk awgrelease/amneziawg-go_${postfix}.ipk
+          cp bin/packages/${{ matrix.build_env.pkgarch }}/awgopenwrt/amneziawg-go_*.ipk awgrelease/amneziawg-go_${postfix}.ipk
 
       - name: Release
         uses: softprops/action-gh-release@v1
