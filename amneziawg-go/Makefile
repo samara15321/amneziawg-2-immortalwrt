@@ -1,10 +1,10 @@
 include $(TOPDIR)/rules.mk
 
-GO ?= go
-
 PKG_NAME:=amneziawg-go
 PKG_VERSION:=0.2.15
 PKG_RELEASE:=$(AUTORELEASE)
+
+GO ?= go
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=https://github.com/amnezia-vpn/$(PKG_NAME)/archive/refs/tags/v$(PKG_VERSION)/
