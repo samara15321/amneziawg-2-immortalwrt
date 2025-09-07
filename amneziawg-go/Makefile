@@ -12,7 +12,6 @@ PKG_BUILD_PARALLEL:=1
 PKG_BUILD_FLAGS:=no-mips16
 
 include $(INCLUDE_DIR)/package.mk
-include $(INCLUDE_DIR)/golang.mk
 
 # Переменные для кросс-компиляции
 PKG_BUILD_ARCH ?= amd64
