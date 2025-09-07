@@ -35,15 +35,7 @@ define Package/amneziawg-go/description
 endef
 
 define Build/Compile
-	cd $(PKG_BUILD_DIR) && \
-		GOOS=linux \
-		GOARCH=$(PKG_BUILD_ARCH) \
-		$(if $(PKG_BUILD_ARM),GOARM=$(PKG_BUILD_ARM)) \
-		CGO_ENABLED=0 \
-		CC="$(TARGET_CC)" \
-		$(GO) build -v -trimpath \
-		-ldflags "-X main.Build=$(PKG_VERSION)" \
-		-o $(PKG_BUILD_DIR)/amneziawg-go .
+  $(call GoPackage/Build/Compile)
 endef
 
 define Package/amneziawg-go/install
