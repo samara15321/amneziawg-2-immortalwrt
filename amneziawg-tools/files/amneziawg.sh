@@ -239,7 +239,7 @@ proto_amneziawg_setup() {
 	else
 		logger -t "amneziawg" "info: using user-space amneziawg-go for ${AWG}"
 		rm -f "/var/run/amneziawg/${config}.sock"
-		amneziawg-go "${config}"
+		/usr/bin/amneziawg-go "${config}" &
 	fi
 
 	if [ "${mtu}" ]; then
