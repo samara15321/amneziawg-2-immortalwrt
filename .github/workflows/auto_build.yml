@@ -137,15 +137,8 @@ jobs:
         env:
           GO: /opt/hostedtoolcache/go/1.24.6/x64/bin/go
         run: |
-          case "$ARCH" in
-            powerpc)
-              echo "Skipping amneziawg-go: unsupported GOARCH for 32-bit PowerPC"
-              ;;
-            *)
-              # AmneziaWG core (Go) только для поддерживаемых архитектур
-              make package/amneziawg-go/{clean,download,prepare,compile} V=s
-              ;;
-          esac
+          # AmneziaWG core (Go) только для поддерживаемых архитектур
+          make package/amneziawg-go/{clean,download,prepare,compile} V=s
 
           # kmod-amneziawg
           make package/kmod-amneziawg/{clean,download,prepare,compile} V=s
