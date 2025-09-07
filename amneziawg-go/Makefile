@@ -14,6 +14,10 @@ PKG_BUILD_FLAGS:=no-mips16
 include $(INCLUDE_DIR)/package.mk
 include $(INCLUDE_DIR)/golang.mk
 
+# Переменные для кросс-компиляции
+PKG_BUILD_ARCH ?= amd64
+PKG_BUILD_ARM ?= 0
+
 define Package/amneziawg-go
   SECTION:=net
   CATEGORY:=Network
@@ -28,8 +32,16 @@ define Package/amneziawg-go/description
   high performance of the original.
 endef
 
+# Компиляция Go с явным использованием PATH (т.е. Go из setup-go на GitHub Actions)
 define Build/Compile
-  $(call GoPackage/Build/Compile)
+	cd $(PKG_BUILD_DIR) && \
+		GOOS=linux \
+		GOARCH=$(PKG_BUILD_ARCH) \
+		$(if $(PKG_BUILD_ARM),GOARM=$(PKG_BUILD_ARM)) \
+		CGO_ENABLED=0 \
+		$(GO) build -v -trimpath \
+		-ldflags "-X main.Build=$(PKG_VERSION)" \
+		-o $(PKG_BUILD_DIR)/amneziawg-go .
 endef
 
 define Package/amneziawg-go/install
