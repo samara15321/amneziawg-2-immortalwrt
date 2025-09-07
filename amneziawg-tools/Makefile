@@ -19,14 +19,17 @@ MAKE_PATH:=src
 MAKE_VARS += PLATFORM=linux
 
 define Package/amneziawg-tools
+  SECTION:=net
   CATEGORY:=Network
   SUBMENU:=VPN
   URL:=https://amnezia.org/
   MAINTAINER:=Amnezia Admin <admin@amnezia.org>
-  TITLE:=AmneziaWG userspace control program (awg)
+  TITLE:=AmneziaWG userspace control program (amneziawg)
   DEPENDS:= \
-	  +@BUSYBOX_CONFIG_IP \
-	  +@BUSYBOX_CONFIG_FEATURE_IP_LINK
+	  +!BUSYBOX_CONFIG_IP:ip \
+	  +!BUSYBOX_CONFIG_FEATURE_IP_LINK:ip \
+	  +ip-full \
+	  +ip-tiny
 endef
 
 define Package/amneziawg-tools/description
@@ -36,6 +39,7 @@ define Package/amneziawg-tools/description
   This package provides the userspace control program for AmneziaWG,
   `awg`, a netifd protocol helper, and a re-resolve watchdog script.
 endef
+
 
 define Package/amneziawg-tools/install
 	$(INSTALL_DIR) $(1)/usr/bin/
