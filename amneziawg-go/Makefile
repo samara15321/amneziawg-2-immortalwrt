@@ -11,14 +11,11 @@ PKG_HASH:=skip
 PKG_BUILD_PARALLEL:=1
 PKG_BUILD_FLAGS:=no-mips16
 
-# Используем внешнее Go
+# Используем внешний Go (CI подставит правильный путь)
 override GO := /opt/hostedtoolcache/go/1.24.6/x64/bin/go
 
-# Переменные для архитектуры (будут заданы через CI)
-PKG_BUILD_ARCH ?= amd64
-PKG_BUILD_ARM ?= 0
-
 include $(INCLUDE_DIR)/package.mk
+include $(INCLUDE_DIR)/golang.mk
 
 define Package/amneziawg-go
   SECTION:=net
