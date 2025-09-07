@@ -1,5 +1,7 @@
 include $(TOPDIR)/rules.mk
 
+GO ?= go
+
 PKG_NAME:=amneziawg-go
 PKG_VERSION:=0.2.15
 PKG_RELEASE:=$(AUTORELEASE)
