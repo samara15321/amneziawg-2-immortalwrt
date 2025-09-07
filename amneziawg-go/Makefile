@@ -47,9 +47,8 @@ define Build/Compile
 endef
 
 define Package/amneziawg-go/install
-	$(call GoPackage/Package/Install/Bin,$(PKG_INSTALL_DIR))
 	$(INSTALL_DIR) $(1)/usr/bin
-	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/bin/amneziawg-go $(1)/usr/bin/amneziawg-go
+	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/bin/amneziawg-go $(1)/usr/bin/
 endef
 
 $(eval $(call BuildPackage,amneziawg-go))
