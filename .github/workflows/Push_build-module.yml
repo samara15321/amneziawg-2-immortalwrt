@@ -120,9 +120,15 @@ jobs:
             echo "Vermagic mismatch: $VERMAGIC, expected $VERMAGIC_EXPECTED"
             exit 1
           fi
-
-          # AmneziaWG core (Go)
-          make package/amneziawg-go/{clean,download,prepare,compile} V=s
+          case "$ARCH" in
+            powerpc)
+              echo "Skipping amneziawg-go: unsupported GOARCH for 32-bit PowerPC"
+              ;;
+            *)
+              # AmneziaWG core (Go) только для поддерживаемых архитектур
+              make package/amneziawg-go/{clean,download,prepare,compile} V=s
+              ;;
+          esac
 
           # kmod-amneziawg
           make package/kmod-amneziawg/{clean,download,prepare,compile} V=s
