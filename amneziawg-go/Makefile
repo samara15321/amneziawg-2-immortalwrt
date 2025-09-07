@@ -10,39 +10,89 @@ PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=https://github.com/amnezia-vpn/$(PKG_NAME)/archive/refs/tags/v$(PKG_VERSION)/
 PKG_HASH:=skip
 
-PKG_BUILD_PARALLEL:=1
-PKG_BUILD_FLAGS:=no-mips16
+PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(PKG_VERSION)
 
 include $(INCLUDE_DIR)/package.mk
 
-# Переменные для кросс-компиляции
-PKG_BUILD_ARCH ?= amd64
-PKG_BUILD_ARM ?= 0
+# === Маппинг архитектур OpenWrt → GOARCH/GOARM ===
+# По умолчанию
+GOARCH:=$(ARCH)
+GOARM:=
+
+# x86
+ifeq ($(ARCH),i386)
+  GOARCH:=386
+endif
+ifeq ($(ARCH),x86_64)
+  GOARCH:=amd64
+endif
+
+# ARM 32-bit
+ifeq ($(ARCH),arm)
+  GOARCH:=arm
+  # ARMv7 → GOARM=7, ARMv6 → GOARM=6 (если нужно различать)
+  ifneq (,$(findstring armv7,$(CONFIG_CPU_TYPE)))
+    GOARM:=7
+  else ifneq (,$(findstring armv6,$(CONFIG_CPU_TYPE)))
+    GOARM:=6
+  endif
+endif
+
+# ARM 64-bit
+ifeq ($(ARCH),aarch64)
+  GOARCH:=arm64
+endif
+
+# MIPS
+ifeq ($(ARCH),mips)
+  GOARCH:=mips
+endif
+ifeq ($(ARCH),mipsel)
+  GOARCH:=mipsle
+endif
+ifeq ($(ARCH),mips64)
+  GOARCH:=mips64
+endif
+ifeq ($(ARCH),mips64el)
+  GOARCH:=mips64le
+endif
+
+# RISC-V
+ifeq ($(ARCH),riscv64)
+  GOARCH:=riscv64
+endif
+
+# PowerPC
+ifeq ($(ARCH),powerpc)
+  GOARCH:=ppc
+endif
+ifeq ($(ARCH),powerpc64)
+  GOARCH:=ppc64
+endif
+ifeq ($(ARCH),powerpc64le)
+  GOARCH:=ppc64le
+endif
 
 define Package/amneziawg-go
   SECTION:=net
   CATEGORY:=Network
-  TITLE:=AmneziaWG userspace implementation program (written in Go)
-  DEPENDS:=$(GO_ARCH_DEPENDS) +kmod-tun
+  TITLE:=AmneziaWG userspace implementation (Go)
+  DEPENDS:=+kmod-tun
 endef
 
 define Package/amneziawg-go/description
-  AmneziaWG is a contemporary version of the WireGuard protocol. It's a fork of
-  WireGuard-Go and offers protection against detection by Deep Packet Inspection
-  (DPI) systems. At the same time, it retains the simplified architecture and
-  high performance of the original.
+AmneziaWG is a fork of WireGuard-Go with DPI-resistance features.
 endef
 
-# Компиляция Go с явным использованием PATH (т.е. Go из setup-go на GitHub Actions)
 define Build/Compile
 	cd $(PKG_BUILD_DIR) && \
 		GOOS=linux \
-		GOARCH=$(PKG_BUILD_ARCH) \
-		$(if $(PKG_BUILD_ARM),GOARM=$(PKG_BUILD_ARM)) \
+		GOARCH=$(GOARCH) \
+		$(if $(GOARM),GOARM=$(GOARM)) \
 		CGO_ENABLED=0 \
-		$(GO) build -v -trimpath \
-		-ldflags "-X main.Build=$(PKG_VERSION)" \
-		-o $(PKG_BUILD_DIR)/amneziawg-go .
+		go build -v -trimpath \
+			-ldflags "-X main.Build=$(PKG_VERSION)" \
+			-o $(PKG_BUILD_DIR)/amneziawg-go .
 endef
 
 define Package/amneziawg-go/install
