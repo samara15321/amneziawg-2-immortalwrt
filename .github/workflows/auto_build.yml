@@ -64,7 +64,7 @@ jobs:
         id: check-file
         run: |
           postfix="v${{ matrix.build_env.tag }}_${{ matrix.build_env.pkgarch}}_${{ matrix.build_env.target}}_${{ matrix.build_env.subtarget}}"
-          FILE_URL="https://github.com/samara15321/amneziawg-immortalwrt/releases/download/${{ inputs.tag_name }}/kmod-amneziawg_${postfix}.ipk"
+          FILE_URL="https://github.com/samara15321/amneziawg-2-immortalwrt/releases/download/${{ inputs.tag_name }}/kmod-amneziawg_${postfix}.ipk"
 
           GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }}
           if curl -H "Authorization: token $GITHUB_TOKEN" --output /dev/null --silent --head --fail "$FILE_URL"; then
