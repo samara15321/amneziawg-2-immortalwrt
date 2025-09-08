@@ -2,7 +2,7 @@ name: Create Release_OFF
 on:
   push:
     tags:
-      - "gwwrt*.*.*"
+      - "test*.*.*"
 
 jobs:
   build:
@@ -75,6 +75,8 @@ jobs:
           make target/linux/compile -i -j `nproc` V=s
 
       - name: Build AmneziaWG packages
+        env:
+          GO: /opt/hostedtoolcache/go/1.24.6/x64/bin/go
         run: |
           VERMAGIC=$(cat ./build_dir/target-*/linux-*/linux-*/.vermagic)
           echo "Vermagic: $VERMAGIC"
