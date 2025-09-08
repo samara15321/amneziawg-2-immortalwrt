@@ -82,6 +82,14 @@ ifeq ($(ARCH),armeb_xscale)
   GOARCH:=unsupported
 endif
 
+ifeq ($(ARCH),mips64_octeonplus)
+  GOARCH:=unsupported
+endif
+
+ifeq ($(ARCH),powerpc64_e5500)
+  GOARCH:=unsupported
+endif
+
 define Package/amneziawg-go
   SECTION:=net
   CATEGORY:=Network
