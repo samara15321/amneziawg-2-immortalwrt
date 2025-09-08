@@ -27,14 +27,19 @@ jobs:
       - name: Get OpenWRT version from tag
         id: get_version
         run: |
-          echo "VERSION=${{ inputs.tag_name }}" | sed 's/^v//' >> $GITHUB_ENV
+          if [ "${{ github.event_name }}" == "workflow_call" ]; then
+            echo "VERSION=${{ inputs.tag_name }}" >> $GITHUB_ENV
+            echo "VERSION=${VERSION#v}" >> $GITHUB_ENV
+          else
+            echo "VERSION=${GITHUB_REF/refs\/tags\/v/}" >> $GITHUB_ENV
+          fi
 
       - name: Install dependencies
         run:  npm install
 
       - name: Generate Job Config
         id: generate-config
-        run: node sync_index.js ${{ env.VERSION }}
+        run: node 24push_sync.js ${{ env.VERSION }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
