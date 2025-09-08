@@ -1,14 +1,16 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=amneziawg-go
-PKG_VERSION:=0.2.15
-PKG_RELEASE:=$(AUTORELEASE)
+PKG_VERSION:=1.0.20250813
+PKG_RELEASE:=1
 
 GO ?= go
 
-PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
-PKG_SOURCE_URL:=https://github.com/amnezia-vpn/$(PKG_NAME)/archive/refs/tags/v$(PKG_VERSION)/
-PKG_HASH:=skip
+PKG_SOURCE_PROTO:=git
+PKG_SOURCE_URL:=https://github.com/amnezia-vpn/amneziawg-go.git
+# Version: v0.2.14-beta-awg-1.5-1
+PKG_SOURCE_VERSION:=15d7259cd45f41d50bc5838dc002698362f29a2d
+PKG_MIRROR_HASH:=d277d34653d2d7885e7b01b6b4037adb3d466cd85c17d857a488cbd4ec60f928
 
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(PKG_VERSION)
 
