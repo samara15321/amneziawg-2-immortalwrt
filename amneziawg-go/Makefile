@@ -59,6 +59,12 @@ endif
 ifeq ($(ARCH),riscv64)
   GOARCH:=riscv64
 endif
+ifeq ($(ARCH),powerpc64)
+  GOARCH:=ppc64
+endif
+ifeq ($(ARCH),powerpc64le)
+  GOARCH:=ppc64le
+endif
 
 # PowerPC
 ifeq ($(ARCH),powerpc)
@@ -68,12 +74,9 @@ endif
 ifeq ($(ARCH),loongarch64)
   GOARCH:=unsupported
 endif
-
-ifeq ($(ARCH),powerpc64)
-  GOARCH:=ppc64
-endif
-ifeq ($(ARCH),powerpc64le)
-  GOARCH:=ppc64le
+# armeb_xscale
+ifeq ($(ARCH),armeb_xscale)
+  GOARCH:=unsupported
 endif
 
 define Package/amneziawg-go
