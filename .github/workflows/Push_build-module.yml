@@ -39,7 +39,7 @@ jobs:
 
       - name: Generate Job Config
         id: generate-config
-        run: node 24push_sync.js ${{ env.VERSION }}
+        run: node index.js ${{ env.VERSION }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
