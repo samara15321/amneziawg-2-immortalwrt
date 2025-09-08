@@ -15,7 +15,6 @@ PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(PKG_VERSION)
 include $(INCLUDE_DIR)/package.mk
 
 # === Маппинг архитектур OpenWrt → GOARCH/GOARM ===
-# По умолчанию
 GOARCH:=$(ARCH)
 GOARM:=
 
@@ -63,7 +62,7 @@ endif
 
 # PowerPC
 ifeq ($(ARCH),powerpc)
-  GOARCH:=ppc
+  GOARCH:=unsupported
 endif
 ifeq ($(ARCH),powerpc64)
   GOARCH:=ppc64
@@ -83,28 +82,28 @@ define Package/amneziawg-go/description
 AmneziaWG is a fork of WireGuard-Go with DPI-resistance features.
 endef
 
-# === Основная сборка (по умолчанию) ===
 define Build/Compile
+ifneq ($(GOARCH),unsupported)
 	cd $(PKG_BUILD_DIR) && \
 		GOOS=linux \
 		GOARCH=$(GOARCH) \
 		$(if $(GOARM),GOARM=$(GOARM)) \
 		CGO_ENABLED=0 \
-		go build -v -trimpath \
+		$(GO) build -v -trimpath \
 			-ldflags "-X main.Build=$(PKG_VERSION)" \
 			-o $(PKG_BUILD_DIR)/amneziawg-go .
-endef
-
-# === Скип для неподдерживаемых архитектур ===
-ifeq ($(ARCH),powerpc)
-define Build/Compile
-	@echo "Skipping amneziawg-go: unsupported on $(ARCH)"
-endef
+else
+	@echo "Skipping build: amneziawg-go not supported on $(ARCH)"
 endif
+endef
 
 define Package/amneziawg-go/install
+ifneq ($(GOARCH),unsupported)
 	$(INSTALL_DIR) $(1)/usr/bin
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/amneziawg-go $(1)/usr/bin/amneziawg-go
+else
+	@echo "Skipping install: amneziawg-go not built on $(ARCH)"
+endif
 endef
 
 $(eval $(call BuildPackage,amneziawg-go))
