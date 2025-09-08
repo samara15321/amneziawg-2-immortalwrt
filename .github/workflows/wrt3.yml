@@ -52,7 +52,7 @@ jobs:
 
           # Setup & install feeds
           wget https://raw.githubusercontent.com/immortalwrt/immortalwrt/v${{ matrix.build_env.tag }}/feeds.conf.default -O feeds.conf
-          echo "src-git awgopenwrt https://github.com/samara15321/-amneziawg-2-immortalwrt.git" >> ./feeds.conf
+          echo "src-git awgopenwrt https://github.com/samara15321/amneziawg-2-immortalwrt.git" >> ./feeds.conf
           ./scripts/feeds update && ./scripts/feeds install -a
 
           # Setup config with AWG and dependencies
