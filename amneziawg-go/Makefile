@@ -81,29 +81,24 @@ endef
 define Package/amneziawg-go/description
 AmneziaWG is a fork of WireGuard-Go with DPI-resistance features.
 endef
-
 define Build/Compile
-ifneq ($(GOARCH),unsupported)
+$(if $(filter unsupported,$(GOARCH)), \
+	@echo "Skipping build: amneziawg-go not supported on $(ARCH)", \
 	cd $(PKG_BUILD_DIR) && \
-		GOOS=linux \
-		GOARCH=$(GOARCH) \
-		$(if $(GOARM),GOARM=$(GOARM)) \
-		CGO_ENABLED=0 \
-		$(GO) build -v -trimpath \
-			-ldflags "-X main.Build=$(PKG_VERSION)" \
-			-o $(PKG_BUILD_DIR)/amneziawg-go .
-else
-	@echo "Skipping build: amneziawg-go not supported on $(ARCH)"
-endif
+	GOOS=linux \
+	GOARCH=$(GOARCH) \
+	$(if $(GOARM),GOARM=$(GOARM)) \
+	CGO_ENABLED=0 \
+	$(GO) build -v -trimpath -ldflags "-X main.Build=$(PKG_VERSION)" -o $(PKG_BUILD_DIR)/amneziawg-go . \
+)
 endef
 
 define Package/amneziawg-go/install
-ifneq ($(GOARCH),unsupported)
-	$(INSTALL_DIR) $(1)/usr/bin
-	$(INSTALL_BIN) $(PKG_BUILD_DIR)/amneziawg-go $(1)/usr/bin/amneziawg-go
-else
-	@echo "Skipping install: amneziawg-go not built on $(ARCH)"
-endif
+$(if $(filter unsupported,$(GOARCH)), \
+	@echo "Skipping install: amneziawg-go not built on $(ARCH)", \
+	$(INSTALL_DIR) $(1)/usr/bin; \
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/amneziawg-go $(1)/usr/bin/amneziawg-go \
+)
 endef
 
 $(eval $(call BuildPackage,amneziawg-go))
