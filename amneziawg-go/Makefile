@@ -64,6 +64,11 @@ endif
 ifeq ($(ARCH),powerpc)
   GOARCH:=unsupported
 endif
+# LoongArch
+ifeq ($(ARCH),loongarch64)
+  GOARCH:=unsupported
+endif
+
 ifeq ($(ARCH),powerpc64)
   GOARCH:=ppc64
 endif
