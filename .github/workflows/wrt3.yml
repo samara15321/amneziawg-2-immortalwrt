@@ -92,7 +92,7 @@ jobs:
         run: |
           make package/amneziawg-go/{clean,download,prepare,compile} V=s
 
-      - name: Prepare artifacts
+      - name: Build AmneziaWG
         run: |
           make package/kmod-amneziawg/{clean,download,prepare,compile} V=s
           make package/amneziawg-tools/{clean,download,prepare,compile} V=s
