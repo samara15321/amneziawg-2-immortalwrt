@@ -88,10 +88,11 @@ jobs:
 
           # AmneziaWG core (Go)
           # Полный цикл для ipk
-          make package/amneziawg-go/{clean,download,prepare,compile,ipkg} V=s
-          make package/kmod-amneziawg/{clean,download,prepare,compile,ipkg} V=s
-          make package/amneziawg-tools/{clean,download,prepare,compile,ipkg} V=s
-          make package/luci-proto-amneziawg/{clean,download,prepare,compile,ipkg} V=s
+          make package/amneziawg-go/{clean,download,prepare,compile} V=s
+          make package/amneziawg-go/ipkg V=s
+          make package/kmod-amneziawg/{clean,download,prepare,compile} V=s
+          make package/amneziawg-tools/{clean,download,prepare,compile} V=s
+          make package/luci-proto-amneziawg/{clean,download,prepare,compile} V=s
 
       - name: Prepare artifacts
         run: |
