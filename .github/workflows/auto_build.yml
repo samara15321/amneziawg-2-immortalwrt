@@ -138,10 +138,10 @@ jobs:
           GO: /opt/hostedtoolcache/go/1.24.6/x64/bin/go
         run: |
           # Полный цикл для ipk
-          make package/amneziawg-go/{clean,download,prepare,compile,install} V=s
-          make package/kmod-amneziawg/{clean,download,prepare,compile,install} V=s
-          make package/amneziawg-tools/{clean,download,prepare,compile,install} V=s
-          make package/luci-proto-amneziawg/{clean,download,prepare,compile,install} V=s
+          make package/amneziawg-go/{clean,download,prepare,compile,ipkg} V=s
+          make package/kmod-amneziawg/{clean,download,prepare,compile,ipkg} V=s
+          make package/amneziawg-tools/{clean,download,prepare,compile,ipkg} V=s
+          make package/luci-proto-amneziawg/{clean,download,prepare,compile,ipkg} V=s
 
       - name: Prepare artifacts
         id: prepare_artifacts
