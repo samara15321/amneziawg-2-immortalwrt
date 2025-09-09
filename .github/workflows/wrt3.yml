@@ -77,13 +77,11 @@ jobs:
       - name: ✅ Verify vermagic
         run: |
           VERMAGIC=$(cat ./build_dir/target-*/linux-*/linux-*/.vermagic)
-          echo "VERMAGIC: $VERMAGIC"
-          echo "EXPECTED: ${{ matrix.build_env.vermagic }}"
-          if [ "$VERMAGIC" != "${{ matrix.build_env.vermagic }}" ]; then
-            echo "::warning:: Vermagic mismatch: $VERMAGIC, expected ${{ matrix.build_env.vermagic }}"
-            echo "VERMAGIC_MISMATCH=true" >> $GITHUB_ENV
-          else
-            echo "VERMAGIC_MISMATCH=false" >> $GITHUB_ENV
+          echo "Vermagic: $VERMAGIC"
+          VERMAGIC_EXPECTED=${{ matrix.build_env.vermagic }}
+          if [ "$VERMAGIC" != "$VERMAGIC_EXPECTED" ]; then
+            echo "Vermagic mismatch: $VERMAGIC, expected $VERMAGIC_EXPECTED"
+            exit 1
           fi
 
       - name: Build AmneziaWG-GO
