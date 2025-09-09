@@ -111,10 +111,10 @@ jobs:
           fi
 
           # Полный цикл для ipk
-          make package/amneziawg-go/{clean,download,prepare,compile,install} V=s
-          make package/kmod-amneziawg/{clean,download,prepare,compile,install} V=s
-          make package/amneziawg-tools/{clean,download,prepare,compile,install} V=s
-          make package/luci-proto-amneziawg/{clean,download,prepare,compile,install} V=s
+          make package/amneziawg-go/{clean,download,prepare,compile,ipkg} V=s
+          make package/kmod-amneziawg/{clean,download,prepare,compile,ipkg} V=s
+          make package/amneziawg-tools/{clean,download,prepare,compile,ipkg} V=s
+          make package/luci-proto-amneziawg/{clean,download,prepare,compile,ipkg} V=s
 
       - name: Prepare artifacts
         id: prepare_artifacts
@@ -122,6 +122,7 @@ jobs:
           tag_name=${{ github.ref_name }}
           mkdir -p awgrelease
           postfix="v${{ matrix.build_env.tag }}_${{ matrix.build_env.pkgarch}}_${{ matrix.build_env.target}}_${{ matrix.build_env.subtarget}}"
+          # Определяем каталоги пакетов
           cp bin/packages/${{ matrix.build_env.pkgarch }}/awgopenwrt/amneziawg-tools_*.ipk awgrelease/amneziawg-tools_${postfix}.ipk
           cp bin/packages/${{ matrix.build_env.pkgarch }}/awgopenwrt/luci-proto-amneziawg_*.ipk awgrelease/luci-proto-amneziawg_${postfix}.ipk
           cp bin/packages/${{ matrix.build_env.pkgarch }}/awgopenwrt/amneziawg-go_*.ipk awgrelease/amneziawg-go_${postfix}.ipk
