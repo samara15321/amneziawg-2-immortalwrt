@@ -30,12 +30,6 @@ jobs:
         with:
           go-version: '1.24.6'
 
-      - name: Override go binary
-        run: |
-          sudo rm -f /usr/bin/go
-          sudo ln -s /opt/hostedtoolcache/go/1.24.6/x64/bin/go /usr/bin/go
-          go version
-
       - name: Install build dependencies
         run: |
           sudo apt-get update
@@ -91,6 +85,9 @@ jobs:
           fi
 
       - name: Build AmneziaWG-GO
+        env:
+           HOST_GO: /opt/hostedtoolcache/go/1.24.6/x64/bin/go
+           PATH: /opt/hostedtoolcache/go/1.24.6/x64/bin:$PATH
         run: |
           make package/amneziawg-go/{clean,download,prepare,compile} V=s
 
