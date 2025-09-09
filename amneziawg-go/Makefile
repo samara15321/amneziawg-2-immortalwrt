@@ -98,21 +98,18 @@ endef
 PKG_BUILD_FLAGS:=no-mips16 no-strip
 
 define Build/Compile
-$(if $(filter unsupported,$(GOARCH)), \
-	@echo "Skipping build: amneziawg-go not supported on $(ARCH)", \
 	cd $(PKG_BUILD_DIR) && \
 	GOOS=linux \
 	GOARCH=$(GOARCH) \
 	$(if $(GOARM),GOARM=$(GOARM)) \
-	CGO_ENABLED=0 \
-	$(GO) build -v -trimpath -ldflags "-s -w -X main.Build=$(PKG_VERSION)" \
-	-o $(PKG_BUILD_DIR)/amneziawg-go . \
-)
+	CGO_ENABLED=1 \
+	$(GO) build -v -trimpath -ldflags "-X main.Build=$(PKG_VERSION)" \
+	-o $(PKG_INSTALL_DIR)/usr/bin/amneziawg-go .
 endef
 
 define Package/amneziawg-go/install
 	$(INSTALL_DIR) $(1)/usr/bin
-	$(INSTALL_BIN) $(PKG_BUILD_DIR)/amneziawg-go $(1)/usr/bin/amneziawg-go
+	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/bin/amneziawg-go $(1)/usr/bin/
 endef
 
 $(eval $(call BuildPackage,amneziawg-go))
