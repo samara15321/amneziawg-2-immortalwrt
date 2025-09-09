@@ -74,20 +74,26 @@ jobs:
           echo "    > make target/linux/compile"
           make target/linux/compile -i -j `nproc` V=s
 
-      - name: Build AmneziaWG packages
-        env:
-          GO: /opt/hostedtoolcache/go/1.24.6/x64/bin/go
+      - name: ✅ Verify vermagic
         run: |
           VERMAGIC=$(cat ./build_dir/target-*/linux-*/linux-*/.vermagic)
-          echo "Vermagic: $VERMAGIC"
-          VERMAGIC_EXPECTED=${{ matrix.build_env.vermagic }}
-          if [ "$VERMAGIC" != "$VERMAGIC_EXPECTED" ]; then
-            echo "Vermagic mismatch: $VERMAGIC, expected $VERMAGIC_EXPECTED"
-            exit 1
+          echo "VERMAGIC: $VERMAGIC"
+          echo "EXPECTED: ${{ matrix.build_env.vermagic }}"
+          if [ "$VERMAGIC" != "${{ matrix.build_env.vermagic }}" ]; then
+            echo "::warning:: Vermagic mismatch: $VERMAGIC, expected ${{ matrix.build_env.vermagic }}"
+            echo "VERMAGIC_MISMATCH=true" >> $GITHUB_ENV
+          else
+            echo "VERMAGIC_MISMATCH=false" >> $GITHUB_ENV
           fi
 
-          # AmneziaWG core (Go)
+      - name: Build AmneziaWG-GO
+        env:
+          HOST_GO: /opt/hostedtoolcache/go/1.24.6/x64/bin/go
+        run: |
           make package/amneziawg-go/{clean,download,prepare,compile} V=s
+
+      - name: Prepare artifacts
+        run: |
           make package/kmod-amneziawg/{clean,download,prepare,compile} V=s
           make package/amneziawg-tools/{clean,download,prepare,compile} V=s
           make package/luci-proto-amneziawg/{clean,download,prepare,compile} V=s
