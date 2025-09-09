@@ -137,17 +137,11 @@ jobs:
         env:
           GO: /opt/hostedtoolcache/go/1.24.6/x64/bin/go
         run: |
-          # AmneziaWG core (Go) только для поддерживаемых архитектур
-          make package/amneziawg-go/{clean,download,prepare,compile} V=s
-
-          # kmod-amneziawg
-          make package/kmod-amneziawg/{clean,download,prepare,compile} V=s
-
-          # Tools
-          make package/amneziawg-tools/{clean,download,prepare,compile} V=s
-
-          # LuCI app
-          make package/luci-proto-amneziawg/{clean,download,prepare,compile} V=s
+          # Полный цикл для ipk
+          make package/amneziawg-go/{clean,download,prepare,compile,install} V=s
+          make package/kmod-amneziawg/{clean,download,prepare,compile,install} V=s
+          make package/amneziawg-tools/{clean,download,prepare,compile,install} V=s
+          make package/luci-proto-amneziawg/{clean,download,prepare,compile,install} V=s
 
       - name: Prepare artifacts
         id: prepare_artifacts
