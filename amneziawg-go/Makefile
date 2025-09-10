@@ -6,8 +6,6 @@ PKG_NAME:=amneziawg-go
 PKG_VERSION:=1.0.20250813
 PKG_RELEASE:=1
 
-GO := $(HOST_GO)
-
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_URL:=https://github.com/amnezia-vpn/amneziawg-go.git
 # Version: v0.2.14-beta-awg-1.5-1
