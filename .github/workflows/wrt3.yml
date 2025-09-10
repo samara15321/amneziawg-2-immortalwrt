@@ -56,10 +56,13 @@ jobs:
           ./scripts/feeds update -a
           ./scripts/feeds install -a
 
-          # Проверяем, что Makefile golang существует
+          # Debug: показать структуру папок lang
+          echo "Содержимое feeds/packages/lang:"
+          ls -R feeds/packages/lang || echo "Папка lang не найдена"
+
+          # Проверяем наличие golang Makefile
           if [ ! -f feeds/packages/lang/golang/Makefile ]; then
             echo "ERROR: golang Makefile not found!"
-            ls -R feeds/packages/lang/
             exit 1
           fi
 
