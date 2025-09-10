@@ -50,21 +50,22 @@ jobs:
         run: |
           echo "pkgarch: ${{ matrix.build_env.pkgarch}}, target:${{ matrix.build_env.target}}, subtarget: ${{ matrix.build_env.subtarget}}"
 
-          # Setup & install feeds
+          # Setup feeds
           wget https://raw.githubusercontent.com/immortalwrt/immortalwrt/v${{ matrix.build_env.tag }}/feeds.conf.default -O feeds.conf
-
-          # Добавляем свой AWG feed
-          echo "src-git awgopenwrt https://github.com/samara15321/amneziawg-2-immortalwrt.git" >> ./feeds.conf
-          
-          # Проверяем, есть ли packages, если нет — добавляем
+          echo "src-git awgopenwrt https://github.com/samara15321/amneziawg-2-immortalwrt.git" >> feeds.conf
           if ! grep -q '^src-git packages ' feeds.conf; then
-              echo "src-git packages https://github.com/immortalwrt/packages.git" >> ./feeds.conf
+              echo "src-git packages https://github.com/immortalwrt/packages.git" >> feeds.conf
           fi
 
-          ./scripts/feeds update -a
+          # Обновляем feeds и принудительно ставим пакеты
+          ./scripts/feeds update -a --force
           ./scripts/feeds install -a
 
-          # Проверяем наличие golang
+          # Debug: показать структуру lang
+          echo "Содержимое feeds/packages/lang:"
+          ls -R feeds/packages/lang || echo "Папка lang не найдена"
+
+          # Проверяем golang Makefile
           if [ ! -f feeds/packages/lang/golang/Makefile ]; then
               echo "ERROR: golang Makefile not found!"
               exit 1
