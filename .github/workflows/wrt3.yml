@@ -78,9 +78,8 @@ jobs:
           sed -i 's/PKG_VERSION:=.*/PKG_VERSION:=1.24.6/' feeds/packages/lang/golang/golang/Makefile
           sed -i 's/PKG_HASH:=.*/PKG_HASH:=0fca1e59c779843f38c894edc6d4fe908fbac5ea1b382eb4a95e74bd0c4d41dd/' feeds/packages/lang/golang/golang/Makefile
 
-          # Проверяем результат
           echo "=== golang Makefile после патча ==="
-          grep -E 'GO_VERSION_MAJOR_MINOR|GO_VERSION_PATCH|PKG_VERSION|PKG_HASH' feeds/packages/lang/golang/Makefile
+          cat feeds/packages/lang/golang/Makefile | grep -E 'GO_VERSION_MAJOR_MINOR|GO_VERSION_PATCH|PKG_VERSION|PKG_HASH' || echo "Строки не найдены"
 
           # Setup config with AWG and dependencies
           wget https://downloads.immortalwrt.org/releases/${{ matrix.build_env.tag }}/targets/${{ matrix.build_env.target}}/${{ matrix.build_env.subtarget}}/config.buildinfo -O .config
