@@ -53,6 +53,7 @@ jobs:
           # Setup & install feeds
           wget https://raw.githubusercontent.com/immortalwrt/immortalwrt/v${{ matrix.build_env.tag }}/feeds.conf.default -O feeds.conf
           echo "src-git awgopenwrt https://github.com/samara15321/amneziawg-2-immortalwrt.git" >> ./feeds.conf
+          echo "src-git packages https://github.com/immortalwrt/packages.git" >> ./feeds.conf  # ← добавляем для golang
           ./scripts/feeds update -a
           ./scripts/feeds install -a
 
