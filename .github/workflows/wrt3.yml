@@ -3,7 +3,7 @@ name: Create Release_OFF
 on:
   push:
     tags:
-      - "2test*.*.*"
+      - "test*.*.*"
 
 jobs:
   build:
@@ -17,9 +17,6 @@ jobs:
             target: rockchip
             subtarget: armv8
             vermagic: "1165e14f95a921713988260b06d8b0ab"
-
-    env:
-      HOST_GO: /opt/hostedtoolcache/go/1.24.6/x64/bin/go  # ← свежий Go для всех Go-пакетов
 
     steps:
       - uses: actions/checkout@v4
@@ -57,6 +54,12 @@ jobs:
           wget https://raw.githubusercontent.com/immortalwrt/immortalwrt/v${{ matrix.build_env.tag }}/feeds.conf.default -O feeds.conf
           echo "src-git awgopenwrt https://github.com/samara15321/amneziawg-2-immortalwrt.git" >> ./feeds.conf
           ./scripts/feeds update && ./scripts/feeds install -a
+
+          # 🔧 Patch golang version to 1.24.6
+          sed -i 's/GO_VERSION_MAJOR_MINOR := .*/GO_VERSION_MAJOR_MINOR := 1.24/' feeds/packages/lang/golang/Makefile
+          sed -i 's/GO_VERSION_PATCH := .*/GO_VERSION_PATCH := 6/' feeds/packages/lang/golang/Makefile
+          sed -i 's/PKG_VERSION:=.*/PKG_VERSION:=1.24.6/' feeds/packages/lang/golang/Makefile
+          sed -i 's/PKG_HASH:=.*/PKG_HASH:=0fca1e59c779843f38c894edc6d4fe908fbac5ea1b382eb4a95e74bd0c4d41dd/' feeds/packages/lang/golang/Makefile
 
           # Setup config with AWG and dependencies
           wget https://downloads.immortalwrt.org/releases/${{ matrix.build_env.tag }}/targets/${{ matrix.build_env.target}}/${{ matrix.build_env.subtarget}}/config.buildinfo -O .config
