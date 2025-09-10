@@ -57,23 +57,23 @@ jobs:
               echo "src-git packages https://github.com/immortalwrt/packages.git" >> feeds.conf
           fi
 
-          # Обновляем feeds и принудительно ставим пакеты
+          # Обновляем feeds и устанавливаем пакеты
           ./scripts/feeds update -a --force
           ./scripts/feeds install -a
 
           # Debug: показать структуру lang
           echo "Содержимое feeds/packages/lang (для поиска golang):"
-          find feeds/packages/lang -maxdepth 3
+          ls -R feeds/packages/lang || echo "Папка lang не найдена"
 
           # Проверяем golang Makefile
           if [ ! -f feeds/packages/lang/golang/Makefile ]; then
-              echo "ERROR: golang Makefile not найден по пути feeds/packages/lang/golang/Makefile"
+              echo "ERROR: golang Makefile не найден по пути feeds/packages/lang/golang/Makefile"
               echo "Проверка наличия golang в feeds/packages/lang:"
               ls -R feeds/packages/lang | grep golang || echo "golang отсутствует"
               exit 1
           fi
 
-          # 🔧 Patch golang version to 1.24.6
+          # 🔧 Патчим golang до версии 1.24.6
           sed -i 's/GO_VERSION_MAJOR_MINOR := .*/GO_VERSION_MAJOR_MINOR := 1.24/' feeds/packages/lang/golang/Makefile
           sed -i 's/GO_VERSION_PATCH := .*/GO_VERSION_PATCH := 6/' feeds/packages/lang/golang/Makefile
           sed -i 's/PKG_VERSION:=.*/PKG_VERSION:=1.24.6/' feeds/packages/lang/golang/Makefile
@@ -89,6 +89,7 @@ jobs:
           echo "CONFIG_PACKAGE_kmod-crypto-lib-chacha20poly1305=m" >> .config
           echo "CONFIG_PACKAGE_kmod-crypto-chacha20poly1305=m" >> .config
 
+          # Подготовка конфигурации
           make defconfig
 
           echo "    > make tools/install"
