@@ -52,9 +52,11 @@ jobs:
 
           # Setup & install feeds
           wget https://raw.githubusercontent.com/immortalwrt/immortalwrt/v${{ matrix.build_env.tag }}/feeds.conf.default -O feeds.conf
-          echo "src-git awgopenwrt https://github.com/samara15321/amneziawg-2-immortalwrt.git" >> ./feeds.conf
 
-          # Добавляем packages только если его нет
+          # Добавляем свой AWG feed
+          echo "src-git awgopenwrt https://github.com/samara15321/amneziawg-2-immortalwrt.git" >> ./feeds.conf
+          
+          # Проверяем, есть ли packages, если нет — добавляем
           if ! grep -q '^src-git packages ' feeds.conf; then
               echo "src-git packages https://github.com/immortalwrt/packages.git" >> ./feeds.conf
           fi
@@ -62,14 +64,10 @@ jobs:
           ./scripts/feeds update -a
           ./scripts/feeds install -a
 
-          # Debug: показать структуру папок lang
-          echo "Содержимое feeds/packages/lang:"
-          ls -R feeds/packages/lang || echo "Папка lang не найдена"
-
-          # Проверяем наличие golang Makefile
+          # Проверяем наличие golang
           if [ ! -f feeds/packages/lang/golang/Makefile ]; then
-            echo "ERROR: golang Makefile not found!"
-            exit 1
+              echo "ERROR: golang Makefile not found!"
+              exit 1
           fi
 
           # 🔧 Patch golang version to 1.24.6
