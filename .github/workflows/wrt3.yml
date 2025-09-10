@@ -53,12 +53,14 @@ jobs:
           # Setup & install feeds
           wget https://raw.githubusercontent.com/immortalwrt/immortalwrt/v${{ matrix.build_env.tag }}/feeds.conf.default -O feeds.conf
           echo "src-git awgopenwrt https://github.com/samara15321/amneziawg-2-immortalwrt.git" >> ./feeds.conf
-          ./scripts/feeds update && ./scripts/feeds install -a
+          ./scripts/feeds update -a
+          ./scripts/feeds install -a
 
-          # проверим, что golang Makefile появился
+          # Проверяем, что Makefile golang существует
           if [ ! -f feeds/packages/lang/golang/Makefile ]; then
-              echo "ERROR: golang Makefile not found!"
-              exit 1
+            echo "ERROR: golang Makefile not found!"
+            ls -R feeds/packages/lang/
+            exit 1
           fi
 
           # 🔧 Patch golang version to 1.24.6
@@ -80,11 +82,11 @@ jobs:
           make defconfig
 
           echo "    > make tools/install"
-          make tools/install -i -j `nproc`
+          make tools/install -i -j $(nproc)
           echo "    > make toolchain/install"
-          make toolchain/install -i -j `nproc`
+          make toolchain/install -i -j $(nproc)
           echo "    > make target/linux/compile"
-          make target/linux/compile -i -j `nproc` V=s
+          make target/linux/compile -i -j $(nproc) V=s
 
       - name: ✅ Verify vermagic
         run: |
