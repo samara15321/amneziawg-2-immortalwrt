@@ -25,9 +25,14 @@ jobs:
           ref: v${{ matrix.build_env.tag }}
           fetch-depth: 0
 
-      - name: Prepare Go tarball
+      - name: Prepare Go tarballs
         run: |
           mkdir -p dl
+          # Bootstrap Go для сборки Go 1.24.6
+          curl -L -o dl/go1.22.6.src.tar.gz https://dl.google.com/go/go1.22.6.src.tar.gz
+          tar -C $HOME -xzf dl/go1.22.6.src.tar.gz
+          export GOROOT_BOOTSTRAP=$HOME/go
+          # Основной Go 1.24.6
           curl -L -o dl/go1.24.6.src.tar.gz https://dl.google.com/go/go1.24.6.src.tar.gz
 
       - name: Install build dependencies
