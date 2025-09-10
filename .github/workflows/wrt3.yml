@@ -25,11 +25,6 @@ jobs:
           ref: v${{ matrix.build_env.tag }}
           fetch-depth: 0
 
-      - name: Install Go
-        uses: actions/setup-go@v5
-        with:
-          go-version: '1.24.6'
-
       - name: Install build dependencies
         run: |
           sudo apt-get update
@@ -49,36 +44,26 @@ jobs:
       - name: Build
         run: |
           echo "pkgarch: ${{ matrix.build_env.pkgarch}}, target:${{ matrix.build_env.target}}, subtarget: ${{ matrix.build_env.subtarget}}"
-
-          # Setup feeds
           wget https://raw.githubusercontent.com/immortalwrt/immortalwrt/v${{ matrix.build_env.tag }}/feeds.conf.default -O feeds.conf
           echo "src-git awgopenwrt https://github.com/samara15321/amneziawg-2-immortalwrt.git" >> feeds.conf
           if ! grep -q '^src-git packages ' feeds.conf; then
               echo "src-git packages https://github.com/immortalwrt/packages.git" >> feeds.conf
           fi
-
-          # Обновляем feeds и принудительно ставим пакеты
           ./scripts/feeds update -a --force
           ./scripts/feeds install -a
-
-          # Debug: показать структуру lang
           echo "Содержимое feeds/packages/lang (для поиска golang):"
           find feeds/packages/lang -maxdepth 3
-
-          # Проверяем golang Makefile
           if [ ! -f feeds/packages/lang/golang/golang/Makefile ]; then
               echo "ERROR: golang Makefile не найден по пути feeds/packages/lang/golang/golang/Makefile"
               ls -R feeds/packages/lang/golang
               exit 1
           fi
-
           # 🔧 Patch golang version to 1.24.6
           sed -i 's/GO_VERSION_MAJOR_MINOR := .*/GO_VERSION_MAJOR_MINOR := 1.24/' feeds/packages/lang/golang/golang/Makefile
           sed -i 's/GO_VERSION_PATCH := .*/GO_VERSION_PATCH := 6/' feeds/packages/lang/golang/golang/Makefile
           sed -i 's/PKG_VERSION:=.*/PKG_VERSION:=1.24.6/' feeds/packages/lang/golang/golang/Makefile
           sed -i 's/PKG_HASH:=.*/PKG_HASH:=e1cb5582aab588668bc04c07de18688070f6b8c9b2aaf361f821e19bd47cfdbd/' feeds/packages/lang/golang/golang/Makefile
-
-          # Setup config with AWG and dependencies
+          
           wget https://downloads.immortalwrt.org/releases/${{ matrix.build_env.tag }}/targets/${{ matrix.build_env.target}}/${{ matrix.build_env.subtarget}}/config.buildinfo -O .config
           echo "CONFIG_PACKAGE_amneziawg-go=y" >> .config
           echo "CONFIG_PACKAGE_amneziawg-tools=y" >> .config
@@ -87,14 +72,9 @@ jobs:
           echo "CONFIG_PACKAGE_kmod-crypto-lib-chacha20=m" >> .config
           echo "CONFIG_PACKAGE_kmod-crypto-lib-chacha20poly1305=m" >> .config
           echo "CONFIG_PACKAGE_kmod-crypto-chacha20poly1305=m" >> .config
-
           make defconfig
-
-          echo "    > make tools/install"
           make tools/install -i -j $(nproc)
-          echo "    > make toolchain/install"
           make toolchain/install -i -j $(nproc)
-          echo "    > make target/linux/compile"
           make target/linux/compile -i -j $(nproc) V=s
 
       - name: ✅ Verify vermagic
