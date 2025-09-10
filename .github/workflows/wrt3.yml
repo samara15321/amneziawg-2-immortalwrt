@@ -55,6 +55,12 @@ jobs:
           echo "src-git awgopenwrt https://github.com/samara15321/amneziawg-2-immortalwrt.git" >> ./feeds.conf
           ./scripts/feeds update && ./scripts/feeds install -a
 
+          # проверим, что golang Makefile появился
+          if [ ! -f feeds/packages/lang/golang/Makefile ]; then
+              echo "ERROR: golang Makefile not found!"
+              exit 1
+          fi
+
           # 🔧 Patch golang version to 1.24.6
           sed -i 's/GO_VERSION_MAJOR_MINOR := .*/GO_VERSION_MAJOR_MINOR := 1.24/' feeds/packages/lang/golang/Makefile
           sed -i 's/GO_VERSION_PATCH := .*/GO_VERSION_PATCH := 6/' feeds/packages/lang/golang/Makefile
