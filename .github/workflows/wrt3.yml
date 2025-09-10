@@ -87,7 +87,7 @@ jobs:
       - name: Build AmneziaWG-GO
         env:
            HOST_GO: /opt/hostedtoolcache/go/1.24.6/x64/bin/go
-           PATH: /opt/hostedtoolcache/go/1.24.6/x64/bin:$PATH
+           PATH: /opt/hostedtoolcache/go/1.24.6/x64/bin:/usr/local/bin:/usr/bin:/bin
         run: |
           make package/amneziawg-go/{clean,download,prepare,compile} V=s
 
