@@ -25,6 +25,11 @@ jobs:
           ref: v${{ matrix.build_env.tag }}
           fetch-depth: 0
 
+      - name: Prepare Go tarball
+        run: |
+          mkdir -p dl
+          curl -L -o dl/go1.24.6.src.tar.gz https://dl.google.com/go/go1.24.6.src.tar.gz
+
       - name: Install build dependencies
         run: |
           sudo apt-get update
