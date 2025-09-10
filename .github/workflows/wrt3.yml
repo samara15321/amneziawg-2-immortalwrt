@@ -1,8 +1,9 @@
 name: Create Release_OFF
+
 on:
   push:
     tags:
-      - "1test*.*.*"
+      - "2test*.*.*"
 
 jobs:
   build:
@@ -16,7 +17,9 @@ jobs:
             target: rockchip
             subtarget: armv8
             vermagic: "1165e14f95a921713988260b06d8b0ab"
-            GO: /opt/hostedtoolcache/go/1.24.6/x64/bin/go
+
+    env:
+      HOST_GO: /opt/hostedtoolcache/go/1.24.6/x64/bin/go  # ← свежий Go для всех Go-пакетов
 
     steps:
       - uses: actions/checkout@v4
@@ -85,8 +88,6 @@ jobs:
           fi
 
       - name: Build AmneziaWG-GO
-        env:
-           HOST_GO: /opt/hostedtoolcache/go/1.24.6/x64/bin/go
         run: |
           make package/amneziawg-go/{clean,download,prepare,compile} V=s
 
