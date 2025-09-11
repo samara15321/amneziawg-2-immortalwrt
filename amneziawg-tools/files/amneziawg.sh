@@ -232,15 +232,18 @@ proto_amneziawg_setup() {
 	config_get awg_j3 "${config}" "awg_j3"
 	config_get awg_itime "${config}" "awg_itime"
 
-
 	if proto_amneziawg_is_kernel_mode; then
 		logger -t "amneziawg" "info: using kernel-space kmod-amneziawg for ${AWG}"
 		ip link del dev "${config}" 2>/dev/null
 		ip link add dev "${config}" type amneziawg
 	else
-		logger -t "amneziawg" "info: using user-space amneziawg-go for ${AWG}"
-		rm -f "/var/run/amneziawg/${config}.sock"
-		amneziawg-go "${config}"
+		logger -t "amneziawg" "info: using user-space amneziawg-go (AWG binary: ${AWG})"
+	    rm -f "/var/run/amneziawg/${config}.sock"
+	    /usr/bin/amneziawg-go "${config}" >> /var/log/amneziawg.log 2>&1 &
+	    for i in $(seq 1 20); do
+	        [ -S "/var/run/amneziawg/${config}.sock" ] && break
+	        sleep 1
+	done
 	fi
  
 	if [ "${mtu}" ]; then
