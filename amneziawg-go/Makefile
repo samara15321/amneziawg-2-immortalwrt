@@ -18,6 +18,25 @@ GO_PKG:=github.com/amnezia-vpn/amneziawg-go
 GO_PKG_LDFLAGS_X:=\
 	main.Build=$(PKG_VERSION)
 
+GO_PKG_NO_STRIP:=1
+
+# Отключаем сборку под неподдерживаемые архитектуры
+ifeq ($(ARCH),loongarch64)
+  PKG_ARCH:=no
+endif
+
+ifeq ($(ARCH),powerpc)
+  PKG_ARCH:=no
+endif
+
+ifeq ($(ARCH),armeb_xscale)
+  PKG_ARCH:=no
+endif
+
+ifeq ($(ARCH),mips64_octeonplus)
+  PKG_ARCH:=no
+endif
+
 include $(INCLUDE_DIR)/package.mk
 include ../../packages/lang/golang/golang-package.mk
 
