@@ -242,6 +242,7 @@ proto_amneziawg_setup() {
 		rm -f "/var/run/amneziawg/${config}.sock"
 		amneziawg-go "${config}"
 	fi
+ 
 	if [ "${mtu}" ]; then
 		ip link set mtu "${mtu}" dev "${config}"
 	fi
