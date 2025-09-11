@@ -15,6 +15,8 @@ PKG_BUILD_PARALLEL:=1
 PKG_BUILD_FLAGS:=no-mips16
 
 GO_PKG:=github.com/amnezia-vpn/amneziawg-go
+GO_PKG_LDFLAGS_X:=\
+	main.Build=$(PKG_VERSION)
 
 include $(INCLUDE_DIR)/package.mk
 include ../../packages/lang/golang/golang-package.mk
@@ -38,17 +40,7 @@ define Build/Compile
 endef
 
 define Package/amneziawg-go/install
-	# создаём папки
-	$(INSTALL_DIR) $(1)/usr/bin
-	$(INSTALL_DIR) $(1)/usr/libexec
-
-	# ставим настоящий бинарь в /usr/libexec
-	$(INSTALL_BIN) $(GO_PKG_BUILD_BIN_DIR)/amneziawg-go $(1)/usr/libexec/amneziawg-go.bin
-
-	# создаём обёртку-скрипт в /usr/bin
-	echo '#!/bin/sh' > $(1)/usr/bin/amneziawg-go
-	echo 'exec /usr/libexec/amneziawg-go.bin "$$@"' >> $(1)/usr/bin/amneziawg-go
-	chmod 0755 $(1)/usr/bin/amneziawg-go
+	$(call GoPackage/Package/Install/Bin,$(PKG_INSTALL_DIR))
 endef
 
 $(eval $(call BuildPackage,amneziawg-go))
