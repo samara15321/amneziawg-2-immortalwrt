@@ -63,19 +63,12 @@ jobs:
             echo "FILE_EXISTS=false" >> $GITHUB_ENV
           fi
 
-      - name: Install Go
-        if: ${{ env.FILE_EXISTS == 'false' }}
-        continue-on-error: true
-        uses: actions/setup-go@v5
-        with:
-          go-version: '1.24.6'
-
-      - name: Install build dependencies
-        if: ${{ env.FILE_EXISTS == 'false' }}
-        continue-on-error: true
+      - name: Install Go 1.24.6
         run: |
-          sudo apt-get update
-          sudo apt-get install -y wget curl git build-essential unzip xz-utils coreutils python3-dev python3-setuptools swig python3-pyelftools gettext
+          wget https://go.dev/dl/go1.24.6.linux-amd64.tar.gz
+          sudo rm -rf /usr/local/go
+          sudo tar -C /usr/local -xzf go1.24.6.linux-amd64.tar.gz
+          echo "/usr/local/go/bin" >> $GITHUB_PATH
 
       - name: Cache Tools and Kernel
         if: ${{ env.FILE_EXISTS == 'false' }}
@@ -111,12 +104,11 @@ jobs:
 
           make defconfig
 
-          echo "    > make tools/install"
-          make tools/install -i -j `nproc`
-          echo "    > make toolchain/install"
-          make toolchain/install -i -j `nproc`
-          echo "    > make target/linux/compile"
-          make target/linux/compile -i -j `nproc` V=s
+      - name: Build OpenWrt toolchain and target
+        run: |
+          make tools/install -i -j $(nproc)
+          make toolchain/install -i -j $(nproc)
+          make target/linux/compile -i -j $(nproc) V=s
 
       - name: ✅ Verify vermagic
         if: ${{ env.FILE_EXISTS == 'false' }}
@@ -134,14 +126,11 @@ jobs:
 
       - name: Build AmneziaWG packages      
         if: ${{ env.FILE_EXISTS == 'false' && env.VERMAGIC_MISMATCH != 'true' }}
-        env:
-          GO: /opt/hostedtoolcache/go/1.24.6/x64/bin/go
         run: |
-          # Полный цикл для ipk
-          make package/amneziawg-go/{clean,download,prepare,compile,ipkg} V=s
-          make package/kmod-amneziawg/{clean,download,prepare,compile,ipkg} V=s
-          make package/amneziawg-tools/{clean,download,prepare,compile,ipkg} V=s
-          make package/luci-proto-amneziawg/{clean,download,prepare,compile,ipkg} V=s
+          make package/amneziawg-go/{clean,download,prepare,compile} V=s
+          make package/kmod-amneziawg/{clean,download,prepare,compile} V=s
+          make package/amneziawg-tools/{clean,download,prepare,compile} V=s
+          make package/luci-proto-amneziawg/{clean,download,prepare,compile} V=s
 
       - name: Prepare artifacts
         id: prepare_artifacts
