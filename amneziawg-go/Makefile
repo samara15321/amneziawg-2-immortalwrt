@@ -46,10 +46,9 @@ define Package/amneziawg-go/install
 	$(INSTALL_BIN) $(GO_PKG_BUILD_BIN_DIR)/amneziawg-go $(1)/usr/libexec/amneziawg-go.bin
 
 	# создаём обёртку-скрипт в /usr/bin
-	$(INSTALL_BIN) -m 0755 /dev/stdin $(1)/usr/bin/amneziawg-go <<EOF
-#!/bin/sh
-exec /usr/libexec/amneziawg-go.bin "\$$@"
-EOF
+	echo '#!/bin/sh' > $(1)/usr/bin/amneziawg-go
+	echo 'exec /usr/libexec/amneziawg-go.bin "$$@"' >> $(1)/usr/bin/amneziawg-go
+	chmod 0755 $(1)/usr/bin/amneziawg-go
 endef
 
 $(eval $(call BuildPackage,amneziawg-go))
