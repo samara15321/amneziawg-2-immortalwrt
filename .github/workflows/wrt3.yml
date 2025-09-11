@@ -75,6 +75,9 @@ jobs:
           echo "CONFIG_PACKAGE_kmod-amneziawg=m" >> .config
           make defconfig
 
+      - name: Check Go version
+        run: go version
+  
       - name: Build AmneziaWG packages
         run: |
           make package/amneziawg-go/{clean,download,prepare,compile} V=s
