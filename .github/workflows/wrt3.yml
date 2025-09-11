@@ -39,6 +39,20 @@ jobs:
           make toolchain/install -i -j $(nproc)
           make target/linux/compile -i -j $(nproc) V=s
 
+      - name: ✅ Verify vermagic
+        if: ${{ env.FILE_EXISTS == 'false' }}
+        continue-on-error: true
+        run: |
+          VERMAGIC=$(cat ./build_dir/target-*/linux-*/linux-*/.vermagic)
+          echo "VERMAGIC: $VERMAGIC"
+          echo "EXPECTED: ${{ matrix.build_env.vermagic }}"
+          if [ "$VERMAGIC" != "${{ matrix.build_env.vermagic }}" ]; then
+            echo "::warning:: Vermagic mismatch: $VERMAGIC, expected ${{ matrix.build_env.vermagic }}"
+            echo "VERMAGIC_MISMATCH=true" >> $GITHUB_ENV
+          else
+            echo "VERMAGIC_MISMATCH=false" >> $GITHUB_ENV
+          fi
+
       - name: Upload OpenWrt build cache
         uses: actions/upload-artifact@v4
         with:
