@@ -15,8 +15,10 @@ PKG_BUILD_PARALLEL:=1
 PKG_BUILD_FLAGS:=no-mips16
 
 GO_PKG:=github.com/amnezia-vpn/amneziawg-go
-GO_PKG_LDFLAGS_X:=\
-	main.Build=$(PKG_VERSION)
+GO_PKG_LDFLAGS_X:=main.Build=$(PKG_VERSION)
+
+# убираем strip-флаги (-s -w), которые добавляются по умолчанию в golang-package.mk
+GO_PKG_LDFLAGS:=
 
 include $(INCLUDE_DIR)/package.mk
 include ../../packages/lang/golang/golang-package.mk
