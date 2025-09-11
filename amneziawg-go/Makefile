@@ -14,18 +14,10 @@ PKG_BUILD_DEPENDS:=golang/host
 PKG_BUILD_PARALLEL:=1
 PKG_BUILD_FLAGS:=no-mips16
 
-# Go package info
 GO_PKG:=github.com/amnezia-vpn/amneziawg-go
-
-# Явно отключаем strip: не используем -s -w
-GO_PKG_LDFLAGS:=
-GO_PKG_LDFLAGS_X:=main.Build=$(PKG_VERSION)
 
 include $(INCLUDE_DIR)/package.mk
 include ../../packages/lang/golang/golang-package.mk
-
-# Перезаписываем GO_PKG_LDFLAGS чтобы не подставлялось -s -w
-GO_PKG_LDFLAGS:=$(GO_PKG_LDFLAGS_X)
 
 define Package/amneziawg-go
   SECTION:=net
@@ -42,12 +34,22 @@ define Package/amneziawg-go/description
 endef
 
 define Build/Compile
-	@echo "=== Building $(PKG_NAME) with ldflags: $(GO_PKG_LDFLAGS) ==="
 	$(call GoPackage/Build/Compile)
 endef
 
 define Package/amneziawg-go/install
-	$(call GoPackage/Package/Install/Bin,$(PKG_INSTALL_DIR))
+	# создаём папки
+	$(INSTALL_DIR) $(1)/usr/bin
+	$(INSTALL_DIR) $(1)/usr/libexec
+
+	# ставим настоящий бинарь в /usr/libexec
+	$(INSTALL_BIN) $(GO_PKG_BUILD_BIN_DIR)/amneziawg-go $(1)/usr/libexec/amneziawg-go.bin
+
+	# создаём обёртку-скрипт в /usr/bin
+	$(INSTALL_BIN) -m 0755 /dev/stdin $(1)/usr/bin/amneziawg-go <<EOF
+#!/bin/sh
+exec /usr/libexec/amneziawg-go.bin "\$$@"
+EOF
 endef
 
 $(eval $(call BuildPackage,amneziawg-go))
