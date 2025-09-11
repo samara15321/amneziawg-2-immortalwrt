@@ -14,17 +14,18 @@ PKG_BUILD_DEPENDS:=golang/host
 PKG_BUILD_PARALLEL:=1
 PKG_BUILD_FLAGS:=no-mips16
 
-# Название Go-пакета
+# Go package info
 GO_PKG:=github.com/amnezia-vpn/amneziawg-go
 
-# Линковочные флаги без -s -w
+# Явно отключаем strip: не используем -s -w
+GO_PKG_LDFLAGS:=
 GO_PKG_LDFLAGS_X:=main.Build=$(PKG_VERSION)
-
-# Важная опция: отключает автоматический strip в golang-package.mk
-GO_PKG_NO_STRIP:=1
 
 include $(INCLUDE_DIR)/package.mk
 include ../../packages/lang/golang/golang-package.mk
+
+# Перезаписываем GO_PKG_LDFLAGS чтобы не подставлялось -s -w
+GO_PKG_LDFLAGS:=$(GO_PKG_LDFLAGS_X)
 
 define Package/amneziawg-go
   SECTION:=net
@@ -41,6 +42,7 @@ define Package/amneziawg-go/description
 endef
 
 define Build/Compile
+	@echo "=== Building $(PKG_NAME) with ldflags: $(GO_PKG_LDFLAGS) ==="
 	$(call GoPackage/Build/Compile)
 endef
 
