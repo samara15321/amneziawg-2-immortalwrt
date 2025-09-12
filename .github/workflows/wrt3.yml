@@ -3,7 +3,7 @@ name: Create Release_OFF
 on:
   push:
     tags:
-      - "test*.*.*"
+      - "2test*.*.*"
 
 jobs:
 
