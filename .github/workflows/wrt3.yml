@@ -3,7 +3,7 @@ name: Create Release_OFF
 on:
   push:
     tags:
-      - "3test*.*.*"
+      - "4test*.*.*"
 
 jobs:
 
@@ -30,20 +30,17 @@ jobs:
         run: |
           wget https://raw.githubusercontent.com/immortalwrt/immortalwrt/v${{ matrix.build_env.tag }}/feeds.conf.default -O feeds.conf
           ./scripts/feeds update && ./scripts/feeds install -a
-
           # Setup config with AWG and crypto dependencies
           wget https://downloads.immortalwrt.org/releases/${{ matrix.build_env.tag }}/targets/${{ matrix.build_env.target}}/${{ matrix.build_env.subtarget}}/config.buildinfo -O .config
           echo "CONFIG_PACKAGE_kmod-crypto-lib-chacha20=m" >> .config
           echo "CONFIG_PACKAGE_kmod-crypto-lib-chacha20poly1305=m" >> .config
           echo "CONFIG_PACKAGE_kmod-crypto-chacha20poly1305=m" >> .config
           make defconfig
-
       - name: Build toolchain and kernel
         run: |
           make tools/install -i -j $(nproc)
           make toolchain/install -i -j $(nproc)
           make target/linux/compile -i -j $(nproc) V=s
-
       - name: ✅ Verify vermagic
         run: |
           VERMAGIC=$(cat ./build_dir/target-*/linux-*/linux-*/.vermagic)
@@ -55,7 +52,6 @@ jobs:
           else
             echo "VERMAGIC_MISMATCH=false" >> $GITHUB_ENV
           fi
-
       - name: Upload OpenWrt build artifact
         uses: actions/upload-artifact@v4
         with:
@@ -65,7 +61,6 @@ jobs:
             staging_dir/**
             tmp/**
             .config
-
   # 2️⃣ Сборка AmneziaWG пакетов
   amneziawg-build:
     runs-on: ubuntu-latest
@@ -91,6 +86,9 @@ jobs:
           name: openwrt-build-${{ matrix.build_env.tag }}-${{ matrix.build_env.pkgarch }}-${{ matrix.build_env.target }}-${{ matrix.build_env.subtarget }}
           path: ./openwrt
 
+      - name: List downloaded content
+        run: ls -R ./openwrt
+
       - name: Install Go
         uses: actions/setup-go@v5
         with:
@@ -98,13 +96,12 @@ jobs:
 
       - name: Setup OpenWrt config for AmneziaWG
         run: |
-          cp ./openwrt/.config .config
+          cp ./openwrt/**/.config .config
           echo "CONFIG_PACKAGE_amneziawg-go=y" >> .config
           echo "CONFIG_PACKAGE_amneziawg-tools=y" >> .config
           echo "CONFIG_PACKAGE_luci-proto-amneziawg=y" >> .config
           echo "CONFIG_PACKAGE_kmod-amneziawg=m" >> .config
           make defconfig
-
       - name: Check Go version
         run: go version
 
@@ -114,7 +111,6 @@ jobs:
           make package/kmod-amneziawg/{clean,download,prepare,compile} V=s
           make package/amneziawg-tools/{clean,download,prepare,compile} V=s
           make package/luci-proto-amneziawg/{clean,download,prepare,compile} V=s
-
       - name: Prepare artifacts
         run: |
           mkdir -p awgrelease
@@ -123,7 +119,6 @@ jobs:
           cp bin/packages/${{ matrix.build_env.pkgarch }}/awgopenwrt/luci-proto-amneziawg_*.ipk awgrelease/luci-proto-amneziawg_${postfix}.ipk
           cp bin/packages/${{ matrix.build_env.pkgarch }}/awgopenwrt/amneziawg-go_*.ipk awgrelease/amneziawg-go_${postfix}.ipk
           cp bin/targets/${{ matrix.build_env.target}}/${{ matrix.build_env.subtarget}}/packages/kmod-amneziawg_*.ipk awgrelease/kmod-amneziawg_${postfix}.ipk
-
       - name: Release
         uses: softprops/action-gh-release@v1
         with:
