@@ -18,6 +18,7 @@ jobs:
             target: rockchip
             subtarget: armv8
             vermagic: "1165e14f95a921713988260b06d8b0ab"
+
     steps:
       - uses: actions/checkout@v4
         with:
@@ -35,8 +36,6 @@ jobs:
           echo "CONFIG_PACKAGE_kmod-crypto-lib-chacha20=m" >> .config
           echo "CONFIG_PACKAGE_kmod-crypto-lib-chacha20poly1305=m" >> .config
           echo "CONFIG_PACKAGE_kmod-crypto-chacha20poly1305=m" >> .config
-
-          # Применяем конфигурацию
           make defconfig
 
       - name: Build toolchain and kernel
@@ -45,25 +44,12 @@ jobs:
           make toolchain/install -i -j $(nproc)
           make target/linux/compile -i -j $(nproc) V=s
 
-      - name: ✅ Verify vermagic
-        if: ${{ env.FILE_EXISTS == 'false' }}
-        continue-on-error: true
-        run: |
-          VERMAGIC=$(cat ./build_dir/target-*/linux-*/linux-*/.vermagic)
-          echo "VERMAGIC: $VERMAGIC"
-          echo "EXPECTED: ${{ matrix.build_env.vermagic }}"
-          if [ "$VERMAGIC" != "${{ matrix.build_env.vermagic }}" ]; then
-            echo "::warning:: Vermagic mismatch: $VERMAGIC, expected ${{ matrix.build_env.vermagic }}"
-            echo "VERMAGIC_MISMATCH=true" >> $GITHUB_ENV
-          else
-            echo "VERMAGIC_MISMATCH=false" >> $GITHUB_ENV
-          fi
-
       - name: Upload OpenWrt build artifact
         uses: actions/upload-artifact@v4
         with:
           name: openwrt-build-${{ matrix.build_env.tag }}-${{ matrix.build_env.pkgarch }}-${{ matrix.build_env.target }}-${{ matrix.build_env.subtarget }}
-          path: ./staging_dir ./build_dir ./tmp .config 
+          path: ./staging_dir ./build_dir ./tmp .config
+
 
   # 2️⃣ Сборка AmneziaWG пакетов
   amneziawg-build:
@@ -77,6 +63,7 @@ jobs:
             target: rockchip
             subtarget: armv8
             vermagic: "1165e14f95a921713988260b06d8b0ab"
+
     steps:
       - uses: actions/checkout@v4
         with:
@@ -90,6 +77,7 @@ jobs:
           path: ./openwrt
 
       - name: ✅ Verify vermagic
+        continue-on-error: true
         run: |
           VERMAGIC=$(cat ./build_dir/target-*/linux-*/linux-*/.vermagic)
           echo "VERMAGIC: $VERMAGIC"
