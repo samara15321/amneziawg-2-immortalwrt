@@ -44,12 +44,27 @@ jobs:
           make toolchain/install -i -j $(nproc)
           make target/linux/compile -i -j $(nproc) V=s
 
+      - name: ✅ Verify vermagic
+        run: |
+          VERMAGIC=$(cat ./build_dir/target-*/linux-*/linux-*/.vermagic)
+          echo "VERMAGIC: $VERMAGIC"
+          echo "EXPECTED: ${{ matrix.build_env.vermagic }}"
+          if [ "$VERMAGIC" != "${{ matrix.build_env.vermagic }}" ]; then
+            echo "::warning:: Vermagic mismatch: $VERMAGIC, expected ${{ matrix.build_env.vermagic }}"
+            echo "VERMAGIC_MISMATCH=true" >> $GITHUB_ENV
+          else
+            echo "VERMAGIC_MISMATCH=false" >> $GITHUB_ENV
+          fi
+
       - name: Upload OpenWrt build artifact
         uses: actions/upload-artifact@v4
         with:
           name: openwrt-build-${{ matrix.build_env.tag }}-${{ matrix.build_env.pkgarch }}-${{ matrix.build_env.target }}-${{ matrix.build_env.subtarget }}
-          path: ./staging_dir ./build_dir ./tmp .config
-
+          path: |
+            build_dir/**
+            staging_dir/**
+            tmp/**
+            .config
 
   # 2️⃣ Сборка AmneziaWG пакетов
   amneziawg-build:
