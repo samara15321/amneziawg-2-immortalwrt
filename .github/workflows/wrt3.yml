@@ -56,8 +56,8 @@ jobs:
 
       - name: 📝 Save .config
         run: |
-          mkdir -p openwrt
-          cp .config openwrt/.config.${{ matrix.build_env.pkgarch }}-${{ matrix.build_env.target }}-${{ matrix.build_env.subtarget }}
+          cp .config .config.${{ matrix.build_env.pkgarch }}-${{ matrix.build_env.target }}-${{ matrix.build_env.subtarget }}
+          ls -lh .config*
 
       - name: 📦 Upload build cache (минимальный набор)
         uses: actions/upload-artifact@v4
@@ -67,7 +67,8 @@ jobs:
             ./staging_dir
             ./build_dir/target-*/linux-*
             ./tmp/info.mk
-            ./.config.${{ matrix.build_env.pkgarch }}-${{ matrix.build_env.target }}-${{ matrix.build_env.subtarget }}
+            .config.${{ matrix.build_env.pkgarch }}-${{ matrix.build_env.target }}-${{ matrix.build_env.subtarget }}
+          include-hidden-files: true   # 👈 ОБЯЗАТЕЛЬНО
 
     # 2️⃣ Сборка AmneziaWG пакетов
   amneziawg-build:
