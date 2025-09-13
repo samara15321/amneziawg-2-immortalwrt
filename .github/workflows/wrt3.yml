@@ -94,8 +94,13 @@ jobs:
 
       - name: 🔄 Restore .config
         run: |
-          cp ./openwrt/.config.${{ matrix.build_env.pkgarch }}-${{ matrix.build_env.target }}-${{ matrix.build_env.subtarget }} .config
-          ls -lh .config
+          if [ -f ./openwrt/.config.aarch64_generic-rockchip-armv8 ]; then
+            cp ./openwrt/.config.aarch64_generic-rockchip-armv8 .config
+          elif [ -f ./openwrt/config.aarch64_generic-rockchip-armv8 ]; then
+            cp ./openwrt/config.aarch64_generic-rockchip-armv8 .config
+          else
+            echo "❌ .config file not found in artifact!" && ls -lah ./openwrt && exit 1
+          fi
 
       - name: Install Go
         uses: actions/setup-go@v5
