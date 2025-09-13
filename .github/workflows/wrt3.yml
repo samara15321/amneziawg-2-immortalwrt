@@ -55,7 +55,9 @@ jobs:
           fi
 
       - name: 📝 Save .config
-        run: cp .config .config.${{ matrix.build_env.pkgarch }}-${{ matrix.build_env.target }}-${{ matrix.build_env.subtarget }}
+        run: |
+          mkdir -p openwrt
+          cp .config openwrt/.config.${{ matrix.build_env.pkgarch }}-${{ matrix.build_env.target }}-${{ matrix.build_env.subtarget }}
 
       - name: 📦 Upload build cache (минимальный набор)
         uses: actions/upload-artifact@v4
