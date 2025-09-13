@@ -1,10 +1,10 @@
-
 name: Create Release_OFF
 
 on:
   push:
     tags:
-      - "4test*.*.*"
+      - "5test*.*.*"
+
 jobs:
 
   # 1️⃣ Базовая сборка OpenWrt
@@ -67,10 +67,10 @@ jobs:
             ./staging_dir
             ./build_dir/target-*/linux-*
             ./tmp/info.mk
-            .config.${{ matrix.build_env.pkgarch }}-${{ matrix.build_env.target }}-${{ matrix.build_env.subtarget }}
-          include-hidden-files: true   # 👈 ОБЯЗАТЕЛЬНО
+            ./.config.${{ matrix.build_env.pkgarch }}-${{ matrix.build_env.target }}-${{ matrix.build_env.subtarget }}
+          include-hidden-files: true
 
-    # 2️⃣ Сборка AmneziaWG пакетов
+  # 2️⃣ Сборка AmneziaWG пакетов
   amneziawg-build:
     runs-on: ubuntu-latest
     needs: openwrt-build
@@ -97,12 +97,14 @@ jobs:
 
       - name: 🔄 Restore .config
         run: |
-          if [ -f ./openwrt/.config.aarch64_generic-rockchip-armv8 ]; then
-            cp ./openwrt/.config.aarch64_generic-rockchip-armv8 .config
-          elif [ -f ./openwrt/config.aarch64_generic-rockchip-armv8 ]; then
-            cp ./openwrt/config.aarch64_generic-rockchip-armv8 .config
+          if [ -f ./openwrt/.config.${{ matrix.build_env.pkgarch }}-${{ matrix.build_env.target }}-${{ matrix.build_env.subtarget }} ]; then
+            cp ./openwrt/.config.${{ matrix.build_env.pkgarch }}-${{ matrix.build_env.target }}-${{ matrix.build_env.subtarget }} .config
+            echo "✅ Config restored:"
+            ls -lh .config
           else
-            echo "❌ .config file not found in artifact!" && ls -lah ./openwrt && exit 1
+            echo "❌ .config file not found in artifact!"
+            ls -lah ./openwrt
+            exit 1
           fi
 
       - name: Install Go
@@ -112,7 +114,6 @@ jobs:
 
       - name: Setup OpenWrt config for AmneziaWG
         run: |
-          # Вносим AWG пакеты в конфиг
           echo "CONFIG_PACKAGE_amneziawg-go=y" >> .config
           echo "CONFIG_PACKAGE_amneziawg-tools=y" >> .config
           echo "CONFIG_PACKAGE_luci-proto-amneziawg=y" >> .config
