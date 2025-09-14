@@ -114,6 +114,8 @@ jobs:
 
       - name: Setup OpenWrt config for AmneziaWG
         run: |
+          cd openwrt
+          cp ../.config .
           echo "CONFIG_PACKAGE_amneziawg-go=y" >> .config
           echo "CONFIG_PACKAGE_amneziawg-tools=y" >> .config
           echo "CONFIG_PACKAGE_luci-proto-amneziawg=y" >> .config
