@@ -25,23 +25,16 @@ jobs:
           ref: v${{ matrix.build_env.tag }}
           fetch-depth: 0
 
-      - name: Install Go 1.25.1
+      - name: Install Go 1.24.4
         run: |
-          wget https://go.dev/dl/go1.25.1.linux-amd64.tar.gz
+          wget https://go.dev/dl/go1.24.4.linux-amd64.tar.gz
           sudo rm -rf /usr/local/go
-          sudo tar -C /usr/local -xzf go1.25.1.linux-amd64.tar.gz
+          sudo tar -C /usr/local -xzf go1.24.4.linux-amd64.tar.gz
           echo "/usr/local/go/bin" >> $GITHUB_PATH
 
-      - name: Cache Tools and Kernel
-        id: cache-tools-kernel
-        uses: actions/cache@v4
-        env:
-          cache-name: "cache-tools-kernel-${{ matrix.build_env.tag }}-${{ matrix.build_env.pkgarch}}-${{ matrix.build_env.target}}-${{ matrix.build_env.subtarget}}"
-        with:
-          path: "**"
-          key: ${{ runner.os }}-build-vm4-${{ env.cache-name }}
-          restore-keys: |
-            ${{ runner.os }}-build-vm4-cache-tools-kernel-${{ matrix.build_env.tag }}-${{ matrix.build_env.pkgarch}}-
+      - name: Verify Go version
+        run: |
+          go version
 
       - name: Build
         run: |
