@@ -1,68 +1,53 @@
-# This is free software, licensed under the MIT License.
-
 include $(TOPDIR)/rules.mk
 
-PKG_NAME:=amneziawg-go
+PKG_NAME:=amneziawg-tools
 PKG_VERSION:=2.0.3
 PKG_RELEASE:=1
 
 PKG_SOURCE_PROTO:=git
-PKG_SOURCE_URL:=https://github.com/amnezia-vpn/amneziawg-go.git
-# Reference: master branch
-PKG_SOURCE_VERSION:=f6542209f40f3f8f9e3dc9403d331ad2881fd7e3
+PKG_SOURCE_URL:=https://github.com/amnezia-vpn/amneziawg-tools.git
+# Reference: v1.0.20250903
+PKG_SOURCE_VERSION:=5c6ffd6168f7c69199200a91803fa02e1b8c4152
+PKG_MIRROR_HASH:=86e7fad2e0584fd0532e91dd1cbc00f22e91bebf928a4d22940a6cf3c75dbdd6
 
-PKG_BUILD_DEPENDS:=golang/host
-PKG_BUILD_PARALLEL:=1
-PKG_BUILD_FLAGS:=no-mips16
+PKG_LICENSE:=GPL-2.0
+PKG_LICENSE_FILES:=COPYING
 
-GO_PKG:=github.com/amnezia-vpn/amneziawg-go
-GO_PKG_LDFLAGS_X:=\
-	main.Build=$(PKG_VERSION)
-
-GO_PKG_NO_STRIP:=1
-
-# Отключаем сборку под неподдерживаемые архитектуры
-ifeq ($(ARCH),loongarch64)
-  PKG_ARCH:=no
-endif
-
-ifeq ($(ARCH),powerpc)
-  PKG_ARCH:=no
-endif
-
-ifeq ($(ARCH),armeb_xscale)
-  PKG_ARCH:=no
-endif
-
-ifeq ($(ARCH),mips64_octeonplus)
-  PKG_ARCH:=no
-endif
+PKG_BUILD_DIR=$(BUILD_DIR)/$(PKG_NAME)-$(PKG_VERSION)
 
 include $(INCLUDE_DIR)/package.mk
-include ../../packages/lang/golang/golang-package.mk
 
-define Package/amneziawg-go
+MAKE_PATH:=src
+MAKE_VARS += PLATFORM=linux
+
+define Package/amneziawg-tools
   SECTION:=net
   CATEGORY:=Network
-  TITLE:=AmneziaWG userspace implementation program (written in Go)
-  DEPENDS:=$(GO_ARCH_DEPENDS) +kmod-tun
+  SUBMENU:=VPN
+  URL:=https://amnezia.org/
+  MAINTAINER:=Amnezia Admin <admin@amnezia.org>
+  TITLE:=AmneziaWG userspace control program (amneziawg)
+  DEPENDS:= \
+	  +!BUSYBOX_CONFIG_IP:ip \
+	  +!BUSYBOX_CONFIG_FEATURE_IP_LINK:ip \
+	  +ip-full
 endef
 
-define Package/amneziawg-go/description
-  AmneziaWG is a contemporary version of the WireGuard protocol. It's a fork of
-  WireGuard-Go and offers protection against detection by Deep Packet Inspection
-  (DPI) systems. At the same time, it retains the simplified architecture and
-  high performance of the original.
+define Package/amneziawg-tools/description
+  Amnezia VPN — simple and free app to run a self-hosted VPN with
+	high privacy requirements.
+
+  This package provides the userspace control program for AmneziaWG,
+  `awg`, a netifd protocol helper, and a re-resolve watchdog script.
 endef
 
-define Build/Compile
-	$(call GoPackage/Build/Compile)
+
+define Package/amneziawg-tools/install
+	$(INSTALL_DIR) $(1)/usr/bin/
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/src/wg $(1)/usr/bin/awg
+	$(INSTALL_BIN) ./files/amneziawg_watchdog $(1)/usr/bin/
+	$(INSTALL_DIR) $(1)/lib/netifd/proto/
+	$(INSTALL_BIN) ./files/amneziawg.sh $(1)/lib/netifd/proto/
 endef
 
-define Package/amneziawg-go/install
-	$(call GoPackage/Package/Install/Bin,$(PKG_INSTALL_DIR))
-	$(INSTALL_DIR) $(1)/usr/bin
-	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/bin/amneziawg-go $(1)/usr/bin/amneziawg-go
-endef
-
-$(eval $(call BuildPackage,amneziawg-go))
+$(eval $(call BuildPackage,amneziawg-tools))
