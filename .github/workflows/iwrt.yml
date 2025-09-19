@@ -25,6 +25,11 @@ jobs:
           ref: v${{ matrix.build_env.tag }}
           fetch-depth: 0
 
+      - name: Install build deps
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y python3-pyelftools
+
       - name: Build
         run: |
           echo "pkgarch: ${{ matrix.build_env.pkgarch}}, target:${{ matrix.build_env.target}}, subtarget: ${{ matrix.build_env.subtarget}}"
