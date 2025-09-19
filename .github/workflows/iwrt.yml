@@ -27,10 +27,10 @@ jobs:
 
       - name: Patch golang feed to 1.24.4
         run: |
-          sed -i 's/PKG_VERSION:=.*/PKG_VERSION:=1.24.4/' feeds/packages/lang/golang/Makefile
-          sed -i 's/PKG_HASH:=.*/PKG_HASH:=36f380a6a912d92bc3d27837aa19fa5c4460eb942ab757669497721c3d5c41e2/' feeds/packages/lang/golang/Makefile
-          grep "PKG_VERSION" feeds/packages/lang/golang/Makefile
-          grep "PKG_HASH" feeds/packages/lang/golang/Makefile
+          sed -i 's/PKG_VERSION:=.*/PKG_VERSION:=1.24.4/' feeds/packages/lang/golang/golang/Makefile
+          sed -i 's/PKG_HASH:=.*/PKG_HASH:=36f380a6a912d92bc3d27837aa19fa5c4460eb942ab757669497721c3d5c41e2/' feeds/packages/lang/golang/golang/Makefile
+          grep "PKG_VERSION" feeds/packages/lang/golang/golang/Makefile
+          grep "PKG_HASH" feeds/packages/lang/golang/golang/Makefile
 
       - name: Build
         run: |
