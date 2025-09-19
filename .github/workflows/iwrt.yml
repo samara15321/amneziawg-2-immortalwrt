@@ -1,9 +1,9 @@
-name: Create Release aarch64_generic_OFF
-#on: [push]
+name: Create Release aarch64_generic_GOHOST
+
 on:
   push:
     tags:
-          - "iwrt*.*.*"
+      - "iwrt*.*.*"
 
 jobs:
   build:
@@ -25,27 +25,20 @@ jobs:
           ref: v${{ matrix.build_env.tag }}
           fetch-depth: 0
 
-      - name: Install Go 1.24.4
+      - name: Patch golang feed to 1.24.4
         run: |
-          wget https://go.dev/dl/go1.24.4.linux-amd64.tar.gz
-          sudo rm -rf /usr/local/go
-          sudo tar -C /usr/local -xzf go1.24.4.linux-amd64.tar.gz
-          echo "/usr/local/go/bin" >> $GITHUB_PATH
-
-      - name: Verify Go version
-        run: |
-          go version
+          sed -i 's/PKG_VERSION:=.*/PKG_VERSION:=1.24.4/' feeds/packages/lang/golang/Makefile
+          sed -i 's/PKG_HASH:=.*/PKG_HASH:=36f380a6a912d92bc3d27837aa19fa5c4460eb942ab757669497721c3d5c41e2/' feeds/packages/lang/golang/Makefile
+          grep "PKG_VERSION" feeds/packages/lang/golang/Makefile
+          grep "PKG_HASH" feeds/packages/lang/golang/Makefile
 
       - name: Build
         run: |
           echo "pkgarch: ${{ matrix.build_env.pkgarch}}, target:${{ matrix.build_env.target}}, subtarget: ${{ matrix.build_env.subtarget}}"
-
-          # Setup & install feeds
           wget https://raw.githubusercontent.com/immortalwrt/immortalwrt/v${{ matrix.build_env.tag }}/feeds.conf.default -O feeds.conf
           echo "src-git awgopenwrt https://github.com/samara15321/amneziawg-2-immortalwrt.git" >> ./feeds.conf
-          ./scripts/feeds update && ./scripts/feeds install -a
+          ./scripts/feeds update -a && ./scripts/feeds install -a
 
-          # Setup config with AWG and dependencies
           wget https://downloads.immortalwrt.org/releases/${{ matrix.build_env.tag }}/targets/${{ matrix.build_env.target}}/${{ matrix.build_env.subtarget}}/config.buildinfo -O .config
           echo "CONFIG_PACKAGE_amneziawg-go=y" >> .config
           echo "CONFIG_PACKAGE_amneziawg-tools=y" >> .config
@@ -54,39 +47,26 @@ jobs:
           echo "CONFIG_PACKAGE_kmod-crypto-lib-chacha20=m" >> .config
           echo "CONFIG_PACKAGE_kmod-crypto-lib-chacha20poly1305=m" >> .config
           echo "CONFIG_PACKAGE_kmod-crypto-chacha20poly1305=m" >> .config
-
           make defconfig
 
       - name: Build OpenWrt toolchain and target
         run: |
-          make tools/install -i -j $(nproc)
-          make toolchain/install -i -j $(nproc)
-          make target/linux/compile -i -j $(nproc) V=s
+          make tools/install -j$(nproc) V=s
+          make toolchain/install -j$(nproc) V=s
+          make target/linux/compile -j$(nproc) V=s
 
       - name: Build AmneziaWG packages
         run: |
-
-          VERMAGIC=$(cat ./build_dir/target-*/linux-*/linux-*/.vermagic)
-          echo "Vermagic: $VERMAGIC"
-          VERMAGIC_EXPECTED=${{ matrix.build_env.vermagic }}
-          if [ "$VERMAGIC" != "$VERMAGIC_EXPECTED" ]; then
-            echo "Vermagic mismatch: $VERMAGIC, expected $VERMAGIC_EXPECTED"
-            exit 1
-          fi
-
-          # Полный цикл для ipk
-          make package/amneziawg-go/{clean,download,prepare,compile,ipkg} V=s
-          make package/kmod-amneziawg/{clean,download,prepare,compile,ipkg} V=s
-          make package/amneziawg-tools/{clean,download,prepare,compile,ipkg} V=s
-          make package/luci-proto-amneziawg/{clean,download,prepare,compile,ipkg} V=s
+          make package/amneziawg-go/compile V=s
+          make package/kmod-amneziawg/compile V=s
+          make package/amneziawg-tools/compile V=s
+          make package/luci-proto-amneziawg/compile V=s
 
       - name: Prepare artifacts
-        id: prepare_artifacts
         run: |
           tag_name=${{ github.ref_name }}
           mkdir -p awgrelease
           postfix="v${{ matrix.build_env.tag }}_${{ matrix.build_env.pkgarch}}_${{ matrix.build_env.target}}_${{ matrix.build_env.subtarget}}"
-          # Определяем каталоги пакетов
           cp bin/packages/${{ matrix.build_env.pkgarch }}/awgopenwrt/amneziawg-tools_*.ipk awgrelease/amneziawg-tools_${postfix}.ipk
           cp bin/packages/${{ matrix.build_env.pkgarch }}/awgopenwrt/luci-proto-amneziawg_*.ipk awgrelease/luci-proto-amneziawg_${postfix}.ipk
           cp bin/packages/${{ matrix.build_env.pkgarch }}/awgopenwrt/amneziawg-go_*.ipk awgrelease/amneziawg-go_${postfix}.ipk
