@@ -60,9 +60,9 @@ jobs:
 
       - name: Build OpenWrt toolchain and target
         run: |
-          make tools/install -j$(nproc) V=s
-          make toolchain/install -j$(nproc) V=s
-          make target/linux/compile -j$(nproc) V=s
+          make tools/install -i -j $(nproc)
+          make toolchain/install -i -j $(nproc)
+          make target/linux/compile -i -j $(nproc) V=s
 
       - name: Build AmneziaWG packages
         run: |
