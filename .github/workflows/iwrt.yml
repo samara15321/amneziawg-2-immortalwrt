@@ -41,7 +41,8 @@ jobs:
           grep "PKG_VERSION" $GO_MK
           grep "PKG_HASH" $GO_MK
 
-          # Build OpenWrt
+      - name: Build OpenWrt 
+        run: |
           wget https://downloads.immortalwrt.org/releases/${{ matrix.build_env.tag }}/targets/${{ matrix.build_env.target}}/${{ matrix.build_env.subtarget}}/config.buildinfo -O .config
           echo "CONFIG_PACKAGE_amneziawg-go=y" >> .config
           echo "CONFIG_PACKAGE_amneziawg-tools=y" >> .config
