@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: MIT
+
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=amneziawg-go
@@ -15,6 +17,20 @@ GO_PKG:=github.com/amnezia-vpn/amneziawg-go
 GO_PKG_LDFLAGS_X:=main.Build=$(PKG_VERSION)
 GO_PKG_NO_STRIP:=1
 
+# Отключаем сборку под неподдерживаемые архитектуры
+ifeq ($(ARCH),loongarch64)
+  PKG_ARCH:=no
+endif
+ifeq ($(ARCH),powerpc)
+  PKG_ARCH:=no
+endif
+ifeq ($(ARCH),armeb_xscale)
+  PKG_ARCH:=no
+endif
+ifeq ($(ARCH),mips64_octeonplus)
+  PKG_ARCH:=no
+endif
+
 include $(INCLUDE_DIR)/package.mk
 
 define Package/amneziawg-go
@@ -26,13 +42,13 @@ endef
 
 define Package/amneziawg-go/description
   AmneziaWG is a contemporary version of the WireGuard protocol.
-  It's a fork of WireGuard-Go with DPI evasion and high performance.
+  It's a fork of WireGuard-Go and offers protection against DPI detection.
 endef
 
 define Build/Compile
-	# Создаём временный модуль Go для кросс-компиляции
-	cd $(PKG_BUILD_DIR) && go mod init tmp && \
-	GOOS=linux GOARCH=$(GOARCH) go build -ldflags "$(GO_PKG_LDFLAGS_X)" -o $(PKG_BUILD_DIR)/amneziawg-go ./cmd/amneziawg-go
+	# Собираем через Go напрямую под нужную архитектуру
+	cd $(PKG_BUILD_DIR) && \
+	GOOS=linux GOARCH=$(GOARCH) go build -ldflags "$(GO_PKG_LDFLAGS_X)" -o amneziawg-go ./cmd/amneziawg-go
 endef
 
 define Package/amneziawg-go/install
