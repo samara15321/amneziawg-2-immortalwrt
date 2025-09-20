@@ -48,7 +48,12 @@ endef
 define Build/Compile
 	# Собираем через Go напрямую под нужную архитектуру
 	cd $(PKG_BUILD_DIR) && \
-	GOOS=linux GOARCH=$(GOARCH) go build -ldflags "$(GO_PKG_LDFLAGS_X)" -o amneziawg-go ./cmd/amneziawg-go
+	GOOS=linux \
+	GOARCH=$(GOARCH) \
+	GOCACHE=$(PKG_BUILD_DIR)/.gocache \
+	go build -mod=mod \
+	-ldflags "$(GO_PKG_LDFLAGS_X)" \
+	-o amneziawg-go ./cmd/amneziawg-go
 endef
 
 define Package/amneziawg-go/install
