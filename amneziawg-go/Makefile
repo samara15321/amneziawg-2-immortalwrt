@@ -11,7 +11,8 @@ PKG_SOURCE_URL:=https://github.com/amnezia-vpn/amneziawg-go.git
 # Reference: master branch
 PKG_SOURCE_VERSION:=f6542209f40f3f8f9e3dc9403d331ad2881fd7e3
 
-PKG_BUILD_DEPENDS:=golang/host
+# --- убираем golang/host ---
+# PKG_BUILD_DEPENDS:=golang/host
 PKG_BUILD_PARALLEL:=1
 PKG_BUILD_FLAGS:=no-mips16
 
@@ -39,7 +40,6 @@ ifeq ($(ARCH),mips64_octeonplus)
 endif
 
 include $(INCLUDE_DIR)/package.mk
-include ../../packages/lang/golang/golang-package.mk
 
 define Package/amneziawg-go
   SECTION:=net
@@ -55,14 +55,14 @@ define Package/amneziawg-go/description
   high performance of the original.
 endef
 
+# --- заменяем вызов golang-package.mk на прямой вызов go build ---
 define Build/Compile
-	$(call GoPackage/Build/Compile)
+	GOOS=linux GOARCH=$(GOARCH) go build -ldflags "$(GO_PKG_LDFLAGS_X)" -o $(PKG_BUILD_DIR)/amneziawg-go ./cmd/amneziawg-go
 endef
 
 define Package/amneziawg-go/install
-	$(call GoPackage/Package/Install/Bin,$(PKG_INSTALL_DIR))
 	$(INSTALL_DIR) $(1)/usr/bin
-	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/bin/amneziawg-go $(1)/usr/bin/amneziawg-go
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/amneziawg-go $(1)/usr/bin/amneziawg-go
 endef
 
 $(eval $(call BuildPackage,amneziawg-go))
