@@ -45,16 +45,13 @@ define Package/amneziawg-go/description
   It's a fork of WireGuard-Go and offers protection against DPI detection.
 endef
 
-define Build/Compile
-	# Собираем через Go напрямую под нужную архитектуру
-	cd $(PKG_BUILD_DIR) && \
-	GOOS=linux \
-	GOARCH=$(GOARCH) \
-	GOCACHE=$(PKG_BUILD_DIR)/.gocache \
-	go build -mod=mod \
-	-ldflags "$(GO_PKG_LDFLAGS_X)" \
-	-o amneziawg-go ./cmd/amneziawg-go
-endef
+cd $(PKG_BUILD_DIR) && \
+  GOOS=linux \
+  GOARCH=$(GOARCH) \
+  GOCACHE=$(PKG_BUILD_DIR)/.gocache \
+  go build -mod=mod \
+  -ldflags "$(GO_PKG_LDFLAGS_X)" \
+  -o amneziawg-go ./cmd/amneziawg-go
 
 define Package/amneziawg-go/install
 	$(INSTALL_DIR) $(1)/usr/bin
