@@ -30,21 +30,19 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y python3-pyelftools
 
+      - name: Install Go 1.24.4
+        run: |
+          wget https://go.dev/dl/go1.24.4.linux-amd64.tar.gz
+          sudo tar -C /usr/local -xzf go1.24.4.linux-amd64.tar.gz
+          echo "/usr/local/go/bin" >> $GITHUB_PATH
+          go version
+
       - name: Build
         run: |
           echo "pkgarch: ${{ matrix.build_env.pkgarch}}, target:${{ matrix.build_env.target}}, subtarget: ${{ matrix.build_env.subtarget}}"
           wget https://raw.githubusercontent.com/immortalwrt/immortalwrt/v${{ matrix.build_env.tag }}/feeds.conf.default -O feeds.conf
           echo "src-git awgopenwrt https://github.com/samara15321/amneziawg-2-immortalwrt.git" >> ./feeds.conf
           ./scripts/feeds update -a && ./scripts/feeds install -a
-
-      - name: Patch Go version
-        run: |
-          GO_MK=$(find feeds/packages/lang -type f -name Makefile | grep golang | head -n1)
-          echo "Using Go Makefile: $GO_MK"
-          sed -i 's/PKG_VERSION:=.*/PKG_VERSION:=1.24.4/' $GO_MK
-          sed -i 's/PKG_HASH:=.*/PKG_HASH:=5a86a83a31f9fa81490b8c5420ac384fd3d95a3e71fba665c7b3f95d1dfef2b4/' $GO_MK
-          grep "PKG_VERSION" $GO_MK
-          grep "PKG_HASH" $GO_MK
 
       - name: Build OpenWrt 
         run: |
